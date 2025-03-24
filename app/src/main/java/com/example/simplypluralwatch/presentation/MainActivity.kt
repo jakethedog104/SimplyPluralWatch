@@ -52,6 +52,7 @@ import androidx.wear.compose.navigation.composable
 import androidx.wear.compose.navigation.rememberSwipeDismissableNavController
 import androidx.wear.compose.ui.tooling.preview.WearPreviewDevices
 import androidx.wear.compose.ui.tooling.preview.WearPreviewFontScales
+import com.example.simplypluralwatch.BuildConfig
 import com.example.simplypluralwatch.R
 import com.example.simplypluralwatch.presentation.theme.WearAppTheme
 import com.google.android.horologist.annotations.ExperimentalHorologistApi
@@ -82,7 +83,7 @@ var allAlters = ArrayList<Alter>()
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        allAlters = getAllAlters(getLocalProperty("systemID"))
+        allAlters = getAllAlters(BuildConfig.systemID)
 
         setContent {
             WearApp()
@@ -268,10 +269,4 @@ fun GreetingScreenPreview() {
 @Composable
 fun ListScreenPreview() {
     ListScreen()
-}
-
-// Gets properties from local.properties
-fun getLocalProperty(key: String): String {
-    // TODO: Load from an env file of some sort
-    return key
 }

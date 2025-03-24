@@ -1,6 +1,7 @@
 package com.example.simplypluralwatch.presentation
 
 import androidx.compose.ui.graphics.Color
+import com.example.simplypluralwatch.BuildConfig
 import com.squareup.moshi.JsonClass
 import com.squareup.moshi.Moshi
 import okhttp3.OkHttpClient
@@ -68,8 +69,8 @@ fun getAllAlters(systemID : String) : ArrayList<Alter> {
 //    val jsonAdapter = moshi.adapter(Array<SPAlterContainer>::class.java)
 
     val request = Request.Builder()
-        .url(getLocalProperty("uri") + "members/" + systemID)
-        .addHeader("Authorization", getLocalProperty("apiKey"))
+        .url(BuildConfig.spURI + "members/" + systemID)
+        .addHeader("Authorization", BuildConfig.apiKey)
         .build()
 //    val response = client.newCall(request).execute()
 //
@@ -95,8 +96,8 @@ fun getFronters() : ArrayList<Alter> {
 //    val jsonAdapter = moshi.adapter(Array<SPFrontContainer>::class.java)
 
     val request = Request.Builder()
-        .url(getLocalProperty("uri") + "fronters/")
-        .addHeader("Authorization", getLocalProperty("apiKey"))
+        .url(BuildConfig.spURI + "fronters/")
+        .addHeader("Authorization", BuildConfig.apiKey)
         .build()
 //    val response = client.newCall(request).execute()
 //    if (response.code == 404) {

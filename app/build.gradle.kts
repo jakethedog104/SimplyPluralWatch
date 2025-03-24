@@ -1,3 +1,14 @@
+import java.io.File
+import java.io.FileInputStream
+import java.util.*
+
+val prop = Properties().apply {
+    load(FileInputStream(File(rootProject.rootDir, "local.properties")))
+}
+val apiKey: String = prop.getProperty("apiKey")
+val systemID: String = prop.getProperty("systemID")
+val spURI: String = prop.getProperty("spURI")
+
 plugins {
     id("com.android.application")
     id("org.jetbrains.kotlin.android")
@@ -9,6 +20,10 @@ android {
     namespace = "com.example.simplypluralwatch"
     compileSdk = 35
 
+    buildFeatures {
+        buildConfig = true
+    }
+
     defaultConfig {
         applicationId = "com.example.simplypluralwatch"
         minSdk = 26
@@ -18,7 +33,16 @@ android {
     }
 
     buildTypes {
-        release {
+        debug {
+            buildConfigField("String", "apiKey", apiKey)
+            buildConfigField("String", "systemID", systemID)
+            buildConfigField("String", "spURI", spURI)
+        }
+        release  {
+            buildConfigField("String", "apiKey", apiKey)
+            buildConfigField("String", "systemID", systemID)
+            buildConfigField("String", "spURI", spURI)
+
             isMinifyEnabled = true
             isShrinkResources = true
             signingConfig = signingConfigs.getByName("debug")
