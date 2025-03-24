@@ -1,0 +1,58 @@
+[versions]
+android-gradle-plugin = "8.9.0"
+androidx-activity = "1.10.1"
+androidx-compose-bom = "2025.03.00"
+androidx-wear-compose = "1.4.1"
+compose-compiler = "1.5.15"
+compose-ui-tooling = "1.4.1"
+horologist = "0.7.5-alpha"
+ktlint = "0.50.0"
+moshi = "1.15.2"
+moshi-kotlin = "1.15.2"
+moshi-kotlin-codegen = "1.15.2"
+okhttp-bom = "4.12.0"
+org-jetbrains-kotlin = "1.9.25"
+robolectric = "4.14.1"
+roborazzi = "1.43.0"
+ui-test-junit4 = "1.7.8"
+ui-test-manifest = "1.7.8"
+
+[libraries]
+androidx-activity-compose = { module = "androidx.activity:activity-compose", version.ref = "androidx-activity" }
+androidx-compose-bom = { group = "androidx.compose", name = "compose-bom", version.ref = "androidx-compose-bom" }
+androidx-compose-ui-tooling = { module = "androidx.wear.compose:compose-ui-tooling", version.ref = "compose-ui-tooling" }
+androidx-material-icons-core = { module = "androidx.compose.material:material-icons-core" }
+androidx-splashscreen =  "androidx.core:core-splashscreen:1.0.1"
+androidx-ui-test-junit4 = { module = "androidx.compose.ui:ui-test-junit4", version.ref = "ui-test-junit4" }
+androidx-ui-test-manifest = { module = "androidx.compose.ui:ui-test-manifest", version.ref = "ui-test-manifest" }
+compose-compiler = { module = "androidx.compose.compiler:compiler", version.ref = "compose-compiler" }
+compose-ui-test-junit4 = { module = "androidx.compose.ui:ui-test-junit4" }
+compose-ui-tooling = { module = "androidx.compose.ui:ui-tooling" }
+compose-ui-tooling-preview = { module = "androidx.compose.ui:ui-tooling-preview" }
+desugar-jdk-libs = "com.android.tools:desugar_jdk_libs:2.1.5"
+horologist-compose-layout = { module = "com.google.android.horologist:horologist-compose-layout", version.ref = "horologist" }
+horologist-compose-material = { module = "com.google.android.horologist:horologist-compose-material", version.ref = "horologist" }
+horologist-roboscreenshots = { module = "com.google.android.horologist:horologist-roboscreenshots", version.ref = "horologist" }
+junit = "junit:junit:4.13.2"
+kotlin-gradle-plugin = { module = "org.jetbrains.kotlin:kotlin-gradle-plugin", version.ref = "org-jetbrains-kotlin" }
+logging-interceptor = { module = "com.squareup.okhttp3:logging-interceptor" }
+moshi = { module = "com.squareup.moshi:moshi", version.ref = "moshi" }
+moshi-kotlin = { module = "com.squareup.moshi:moshi-kotlin", version.ref = "moshi-kotlin" }
+moshi-kotlin-codegen = { module = "com.squareup.moshi:moshi-kotlin-codegen", version.ref = "moshi-kotlin-codegen" }
+okhttp = { module = "com.squareup.okhttp3:okhttp" }
+okhttp-bom = { module = "com.squareup.okhttp3:okhttp-bom", version.ref = "okhttp-bom" }
+robolectric = { module = "org.robolectric:robolectric", version.ref = "robolectric" }
+roborazzi = { group = "io.github.takahirom.roborazzi", name = "roborazzi", version.ref = "roborazzi" }
+roborazzi-compose = { group = "io.github.takahirom.roborazzi", name = "roborazzi-compose", version.ref = "roborazzi" }
+roborazzi-rule = { group = "io.github.takahirom.roborazzi", name = "roborazzi-junit-rule", version.ref = "roborazzi" }
+test-espresso-core = "androidx.test.espresso:espresso-core:3.6.1"
+test-ext-junit = "androidx.test.ext:junit:1.2.1"
+wear-compose-foundation = { module = "androidx.wear.compose:compose-foundation", version.ref = "androidx-wear-compose" }
+wear-compose-material = { module = "androidx.wear.compose:compose-material", version.ref = "androidx-wear-compose" }
+wear-compose-navigation = { module = "androidx.wear.compose:compose-navigation", version.ref = "androidx-wear-compose" }
+
+[plugins]
+com-android-application = { id = "com.android.application", version.ref = "android-gradle-plugin" }
+com-diffplug-spotless = "com.diffplug.spotless:7.0.2"
+roborazzi = { id = "io.github.takahirom.roborazzi", version.ref = "roborazzi" }
+
