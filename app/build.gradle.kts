@@ -13,7 +13,6 @@ plugins {
     id("com.android.application")
     id("org.jetbrains.kotlin.android")
     alias(libs.plugins.roborazzi)
-    id("com.google.devtools.ksp").version("1.6.10-1.0.4") // for Moshi Codegen
 }
 
 android {
@@ -87,9 +86,6 @@ dependencies {
     implementation(platform(libs.okhttp.bom))
     implementation(libs.okhttp)
     implementation(libs.logging.interceptor)
-    implementation(libs.moshi)
-    implementation(libs.moshi.kotlin)
-    ksp(libs.moshi.kotlin.codegen)
 
     // General compose dependencies
     implementation(composeBom)

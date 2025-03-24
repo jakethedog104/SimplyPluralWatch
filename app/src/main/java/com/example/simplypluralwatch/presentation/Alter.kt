@@ -2,21 +2,15 @@ package com.example.simplypluralwatch.presentation
 
 import androidx.compose.ui.graphics.Color
 import com.example.simplypluralwatch.BuildConfig
-import com.squareup.moshi.JsonClass
-import com.squareup.moshi.Moshi
 import okhttp3.OkHttpClient
 import okhttp3.Request
 
 data class Alter (val name: String, val id: String, val color: Color, var startTime: Int?)
 
-@JsonClass(generateAdapter = true)
 data class SPAlterContainer (val exists : Boolean, val id: String, val content: SPAlter)
-@JsonClass(generateAdapter = true)
 data class SPAlter (val name: String, val color: String)
 
-@JsonClass(generateAdapter = true)
 data class SPFrontContainer (val exists : Boolean, val id: String, val content: SPFront)
-@JsonClass(generateAdapter = true)
 data class SPFront (val pMember: String, val pStartTime: Int) {
     val customStatus = ""
     val custom = false
@@ -65,56 +59,47 @@ fun getAlterNames(al : ArrayList<Alter>) : String {
 @ExperimentalStdlibApi
 fun getAllAlters(systemID : String) : ArrayList<Alter> {
     val client = OkHttpClient()
-    val moshi = Moshi.Builder().build()
-//    val jsonAdapter = moshi.adapter(Array<SPAlterContainer>::class.java)
-
     val request = Request.Builder()
         .url(BuildConfig.spURI + "members/" + systemID)
         .addHeader("Authorization", BuildConfig.apiKey)
         .build()
-//    val response = client.newCall(request).execute()
-//
-//    if (response.code == 404) {
-//        error("System Not Found")
-//    } else {
-//        // Response Code 200
-//        val allAlters = jsonAdapter.fromJson(response.body!!.source())
-//        return spAlterContainerToAlter(allAlters!!)
-//    }
+    val response = client.newCall(request).execute()
 
-    val test = arrayOf(
-        SPAlterContainer(true,"a", SPAlter("A", "#00ff00")),
-        SPAlterContainer(true,"b", SPAlter("B", "#0000ff")),
-        SPAlterContainer(true,"c", SPAlter("C", "#ff0000"))
-    )
-    return spAlterContainerToAlter(test)
+    if (response.code == 404) {
+        error("System Not Found")
+    } else {
+        // Response Code 200
+        println(response.body)
+        var convertedJson : List<SPAlterContainer>? = null
+        return if (convertedJson.isNullOrEmpty()) {
+            spAlterContainerToAlter(arrayOf(SPAlterContainer(true, "a", SPAlter("a", "#ff00ff"))))
+        } else {
+            spAlterContainerToAlter(convertedJson)
+        }
+    }
 }
 
 fun getFronters() : ArrayList<Alter> {
     val client = OkHttpClient()
-    val moshi = Moshi.Builder().build()
-//    val jsonAdapter = moshi.adapter(Array<SPFrontContainer>::class.java)
-
     val request = Request.Builder()
         .url(BuildConfig.spURI + "fronters/")
         .addHeader("Authorization", BuildConfig.apiKey)
         .build()
 //    val response = client.newCall(request).execute()
+
 //    if (response.code == 404) {
 //        error("System Not Found")
 //    } else {
 //        // Response Code 200
-//        val allFronters = jsonAdapter.fromJson(response.body!!.source())
-//        return spFrontContainerToAlter(allFronters!!)
+//        println(response.body)
+        return spFrontContainerToAlter(arrayOf(SPFrontContainer(true, "a", SPFront("a", 0))))
 //    }
-
-    val test = SPFrontContainer(true, "x", SPFront("a", 0))
-    return spFrontContainerToAlter(arrayOf(test))
 }
 
 fun addAlterToFront(alter: Alter) {
     // TODO: Add via API
 }
+
 fun removeAlterFromFront(alter: Alter) {
     // TODO: Remove via API
 }

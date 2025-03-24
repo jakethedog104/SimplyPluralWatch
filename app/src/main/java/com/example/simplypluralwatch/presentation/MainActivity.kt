@@ -83,7 +83,9 @@ var allAlters = ArrayList<Alter>()
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        allAlters = getAllAlters(BuildConfig.systemID)
+        Thread{
+            allAlters = getAllAlters(BuildConfig.systemID)
+        }.start()
 
         setContent {
             WearApp()
