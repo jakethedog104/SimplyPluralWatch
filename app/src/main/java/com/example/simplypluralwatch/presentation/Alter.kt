@@ -7,7 +7,7 @@ import okhttp3.Request
 import kotlinx.serialization.*
 import kotlinx.serialization.json.*
 
-data class Alter (val name: String, val id: String, val color: Color, var startTime: Int?)
+data class Alter (val name: String, val id: String, val color: Color, var startTime: Long?)
 
 @Serializable
 @JsonIgnoreUnknownKeys
@@ -19,18 +19,29 @@ data class SPAlterContainer (val id: String, val content: SPAlter)
 data class SPAlter (val name: String, val color: String)
 
 @Serializable
+@ExperimentalSerializationApi
 data class SPFrontContainer (val exists : Boolean, val id: String, val content: SPFront)
 @Serializable
-data class SPFront (val pMember: String, val pStartTime: Int) {
-    val customStatus = ""
-    val custom = false
-    val live = true
-    val startTime : Int = pStartTime
-    val endTime : Int? = null
-    val member = pMember
+@JsonIgnoreUnknownKeys
+@ExperimentalSerializationApi
+data class SPFront (
+    val custom : Boolean,
+    val live : Boolean,
+    val startTime : Long,
+    val endTime : Int?,
+    val member : String
+) {
+    constructor(pMember: String, pStartTime: Long) : this (
+        custom = false,
+        live = true,
+        startTime = pStartTime,
+        endTime = null,
+        member = pMember
+    )
 }
 
 @ExperimentalStdlibApi
+@ExperimentalSerializationApi
 fun spAlterContainerToAlter(spAlterContainer : Array<SPAlterContainer>) : ArrayList<Alter> {
     var allMembers = ArrayList<Alter>()
     for (a in spAlterContainer) {
@@ -44,6 +55,7 @@ fun spAlterContainerToAlter(spAlterContainer : Array<SPAlterContainer>) : ArrayL
     return allMembers
 }
 
+@ExperimentalSerializationApi
 fun spFrontContainerToAlter(spFrontContainer : Array<SPFrontContainer>) : ArrayList<Alter> {
     var allFronters = ArrayList<Alter>()
     for (a in spFrontContainer) {

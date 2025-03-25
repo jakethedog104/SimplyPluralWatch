@@ -66,8 +66,10 @@ import com.google.android.horologist.compose.material.AlertContent
 import com.google.android.horologist.compose.material.Chip
 import com.google.android.horologist.compose.material.ListHeaderDefaults.firstItemPadding
 import com.google.android.horologist.compose.material.ResponsiveListHeader
+import kotlinx.serialization.ExperimentalSerializationApi
 
 var allAlters = ArrayList<Alter>()
+var currentFronters = ArrayList<Alter>()
 
 /**
  * Simple "Hello, World" app meant as a starting point for a new project using Compose for Wear OS.
@@ -80,11 +82,13 @@ var allAlters = ArrayList<Alter>()
  * back action). For more information, go here:
  * https://developer.android.com/reference/kotlin/androidx/wear/compose/navigation/package-summary
  */
+@ExperimentalSerializationApi
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         Thread{
             allAlters = getAllAlters(BuildConfig.systemID)
+            currentFronters = getFronters()
         }.start()
 
         setContent {
@@ -94,6 +98,7 @@ class MainActivity : ComponentActivity() {
 }
 
 @Composable
+@ExperimentalSerializationApi
 fun WearApp() {
     val navController = rememberSwipeDismissableNavController()
 
@@ -102,7 +107,7 @@ fun WearApp() {
             SwipeDismissableNavHost(navController = navController, startDestination = "menu") {
                 composable("menu") {
                     GreetingScreen(
-                        getAlterNames(getFronters()),
+                        getAlterNames(currentFronters),
                         onShowList = { navController.navigate("list") }
                     )
                 }
@@ -145,6 +150,7 @@ fun GreetingScreen(greetingName: String, onShowList: () -> Unit) {
 }
 
 @Composable
+@ExperimentalSerializationApi
 fun ListScreen() {
     var showDialog by remember { mutableStateOf(false) }
 
@@ -173,9 +179,8 @@ fun ListScreen() {
                     Text(text = "Alters")
                 }
             }
-            var currentAlters = getFronters()
             for (alter in allAlters) {
-                if (currentAlters.contains(alter)) {
+                if (currentFronters.contains(alter)) {
                     item {
                         Chip(
                             colors = ChipDefaults.primaryChipColors(alter.color),
@@ -269,6 +274,7 @@ fun GreetingScreenPreview() {
 @WearPreviewDevices
 @WearPreviewFontScales
 @Composable
+@ExperimentalSerializationApi
 fun ListScreenPreview() {
     ListScreen()
 }
