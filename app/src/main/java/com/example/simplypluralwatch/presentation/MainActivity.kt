@@ -16,7 +16,8 @@
 @file:OptIn(
     ExperimentalHorologistApi::class,
     ExperimentalWearFoundationApi::class,
-    ExperimentalStdlibApi::class
+    ExperimentalStdlibApi::class ,
+    ExperimentalSerializationApi::class
 )
 
 package com.example.simplypluralwatch.presentation
@@ -82,7 +83,6 @@ var currentFronters = ArrayList<Alter>()
  * back action). For more information, go here:
  * https://developer.android.com/reference/kotlin/androidx/wear/compose/navigation/package-summary
  */
-@ExperimentalSerializationApi
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -98,7 +98,6 @@ class MainActivity : ComponentActivity() {
 }
 
 @Composable
-@ExperimentalSerializationApi
 fun WearApp() {
     val navController = rememberSwipeDismissableNavController()
 
@@ -150,7 +149,6 @@ fun GreetingScreen(greetingName: String, onShowList: () -> Unit) {
 }
 
 @Composable
-@ExperimentalSerializationApi
 fun ListScreen() {
     var showDialog by remember { mutableStateOf(false) }
 
@@ -274,7 +272,6 @@ fun GreetingScreenPreview() {
 @WearPreviewDevices
 @WearPreviewFontScales
 @Composable
-@ExperimentalSerializationApi
 fun ListScreenPreview() {
     ListScreen()
 }
