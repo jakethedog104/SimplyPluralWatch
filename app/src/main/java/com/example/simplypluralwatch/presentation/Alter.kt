@@ -126,10 +126,7 @@ fun getAllAlters(systemID : String) : ArrayList<Alter> {
         .build()
     val response = client.newCall(request).execute()
 
-    if (response.code == 404) {
-        error("System Not Found")
-    } else {
-        // Response Code 200
+    if (response.code == 200) {
         var json : String = response.body!!.string()
         var convertedJson = Json.decodeFromString<Array<SPAlterContainer>>(json)
         return spAlterContainerToAlter(convertedJson)
@@ -145,10 +142,7 @@ fun getFronters() : ArrayList<Alter> {
         .build()
     val response = client.newCall(request).execute()
 
-    if (response.code == 404) {
-        error("System Not Found")
-    } else {
-        // Response Code 200
+    if (response.code == 200 ) {
         var json : String = response.body!!.string()
         var convertedJson = Json.decodeFromString<Array<SPFrontContainer>>(json)
         return spFrontContainerToAlter(convertedJson)
@@ -177,10 +171,7 @@ fun addAlterToFront(alter: Alter) {
         Thread {
             val response = client.newCall(request).execute()
 
-            if (response.code == 404) {
-                error("Not Found")
-            } else {
-                // Response Code 200
+            if (response.code == 200) {
                 var json: String = response.body!!.string()
                 alter.docID = json.replace("\"", "")
                 currentFronters.add(alter)
@@ -210,10 +201,7 @@ fun removeAlterFromFront(alter: Alter) {
         Thread {
             val response = client.newCall(request).execute()
 
-            if (response.code == 404) {
-                error("Not Found")
-            } else {
-                // Response Code 200
+            if (response.code == 200) {
                 alter.startTime = null
                 alter.docID = null
                 currentFronters.remove(alter)
