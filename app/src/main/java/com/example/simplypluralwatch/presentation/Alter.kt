@@ -130,6 +130,8 @@ fun getAllAlters(systemID : String) : ArrayList<Alter> {
         var json : String = response.body!!.string()
         var convertedJson = Json.decodeFromString<Array<SPAlterContainer>>(json)
         return spAlterContainerToAlter(convertedJson)
+    } else {
+        error("Call failed: " + response.code.toString())
     }
 }
 
@@ -142,10 +144,12 @@ fun getFronters() : ArrayList<Alter> {
         .build()
     val response = client.newCall(request).execute()
 
-    if (response.code == 200 ) {
+    if (response.code == 200) {
         var json : String = response.body!!.string()
         var convertedJson = Json.decodeFromString<Array<SPFrontContainer>>(json)
         return spFrontContainerToAlter(convertedJson)
+    } else {
+        error("Call failed: " + response.code.toString())
     }
 }
 
