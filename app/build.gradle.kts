@@ -12,6 +12,8 @@ val spURI: String = prop.getProperty("spURI")
 plugins {
     id("com.android.application")
     id("org.jetbrains.kotlin.android")
+    alias(libs.plugins.kotlin.compose)
+    kotlin("plugin.serialization") version "2.1.0"
     alias(libs.plugins.roborazzi)
 }
 
@@ -86,6 +88,9 @@ dependencies {
     implementation(platform(libs.okhttp.bom))
     implementation(libs.okhttp)
     implementation(libs.logging.interceptor)
+
+    // Serialization & Deserialization libs
+    implementation(libs.kotlinx.serialization.json)
 
     // General compose dependencies
     implementation(composeBom)

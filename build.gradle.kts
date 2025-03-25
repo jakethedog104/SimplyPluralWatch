@@ -12,6 +12,7 @@ plugins {
     alias(libs.plugins.com.diffplug.spotless) apply(false)
     alias(libs.plugins.com.android.application) apply(false)
     alias(libs.plugins.roborazzi) apply false
+    alias(libs.plugins.kotlin.compose) apply false
 }
 
 subprojects {

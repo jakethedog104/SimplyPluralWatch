@@ -4,13 +4,23 @@ import androidx.compose.ui.graphics.Color
 import com.example.simplypluralwatch.BuildConfig
 import okhttp3.OkHttpClient
 import okhttp3.Request
+import kotlinx.serialization.*
+import kotlinx.serialization.json.*
 
 data class Alter (val name: String, val id: String, val color: Color, var startTime: Int?)
 
-data class SPAlterContainer (val exists : Boolean, val id: String, val content: SPAlter)
+@Serializable
+@JsonIgnoreUnknownKeys
+@ExperimentalSerializationApi
+data class SPAlterContainer (val id: String, val content: SPAlter)
+@Serializable
+@JsonIgnoreUnknownKeys
+@ExperimentalSerializationApi
 data class SPAlter (val name: String, val color: String)
 
+@Serializable
 data class SPFrontContainer (val exists : Boolean, val id: String, val content: SPFront)
+@Serializable
 data class SPFront (val pMember: String, val pStartTime: Int) {
     val customStatus = ""
     val custom = false
@@ -57,6 +67,7 @@ fun getAlterNames(al : ArrayList<Alter>) : String {
 }
 
 @ExperimentalStdlibApi
+@ExperimentalSerializationApi
 fun getAllAlters(systemID : String) : ArrayList<Alter> {
     val client = OkHttpClient()
     val request = Request.Builder()
@@ -69,37 +80,37 @@ fun getAllAlters(systemID : String) : ArrayList<Alter> {
         error("System Not Found")
     } else {
         // Response Code 200
-        println(response.body)
-        var convertedJson : List<SPAlterContainer>? = null
-        return if (convertedJson.isNullOrEmpty()) {
-            spAlterContainerToAlter(arrayOf(SPAlterContainer(true, "a", SPAlter("a", "#ff00ff"))))
-        } else {
-            spAlterContainerToAlter(convertedJson)
-        }
+        var json : String = response.body!!.string()
+        var convertedJson = Json.decodeFromString<Array<SPAlterContainer>>(json)
+        return spAlterContainerToAlter(convertedJson)
     }
 }
 
+@ExperimentalSerializationApi
 fun getFronters() : ArrayList<Alter> {
     val client = OkHttpClient()
     val request = Request.Builder()
         .url(BuildConfig.spURI + "fronters/")
         .addHeader("Authorization", BuildConfig.apiKey)
         .build()
-//    val response = client.newCall(request).execute()
+    val response = client.newCall(request).execute()
 
-//    if (response.code == 404) {
-//        error("System Not Found")
-//    } else {
-//        // Response Code 200
-//        println(response.body)
-        return spFrontContainerToAlter(arrayOf(SPFrontContainer(true, "a", SPFront("a", 0))))
-//    }
+    if (response.code == 404) {
+        error("System Not Found")
+    } else {
+        // Response Code 200
+        var json : String = response.body!!.string()
+        var convertedJson = Json.decodeFromString<Array<SPFrontContainer>>(json)
+        return spFrontContainerToAlter(convertedJson)
+    }
 }
 
+@ExperimentalSerializationApi
 fun addAlterToFront(alter: Alter) {
     // TODO: Add via API
 }
 
+@ExperimentalSerializationApi
 fun removeAlterFromFront(alter: Alter) {
     // TODO: Remove via API
 }
