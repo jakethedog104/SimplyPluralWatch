@@ -166,7 +166,7 @@ fun AlterScreen() {
     val columnState = rememberResponsiveColumnState(
         contentPadding = ScalingLazyColumnDefaults.padding(
             first = ItemType.Text,
-            last = ItemType.SingleButton
+            last = ItemType.Chip
         )
     )
 
@@ -226,7 +226,7 @@ fun CustomScreen() {
     val columnState = rememberResponsiveColumnState(
         contentPadding = ScalingLazyColumnDefaults.padding(
             first = ItemType.Text,
-            last = ItemType.SingleButton
+            last = ItemType.Chip
         )
     )
 
