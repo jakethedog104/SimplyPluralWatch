@@ -6,9 +6,7 @@
 
 An app that allows you to view & update your front status via your watch!
 
-<img src="https://raw.githubusercontent.com/jakethedog104/SimplyPluralWatch/refs/heads/main/screenshots/sample_greeting.png" alt="screenshot of greeting screen">
-<img src="https://raw.githubusercontent.com/jakethedog104/SimplyPluralWatch/refs/heads/main/screenshots/sample_alter.png" alt="screenshot of alter list">
-<img src="https://raw.githubusercontent.com/jakethedog104/SimplyPluralWatch/refs/heads/main/screenshots/sample_custom.png" alt="screenshot of custom front list">
+<img src="https://raw.githubusercontent.com/jakethedog104/SimplyPluralWatch/refs/heads/main/screenshots/sample_greeting.png" alt="screenshot of greeting screen" width="200px"><img src="https://raw.githubusercontent.com/jakethedog104/SimplyPluralWatch/refs/heads/main/screenshots/sample_alter.png" alt="screenshot of alter list" width="200px"><img src="https://raw.githubusercontent.com/jakethedog104/SimplyPluralWatch/refs/heads/main/screenshots/sample_custom.png" alt="screenshot of custom front list" width="200px">
 
 ## local.properties
 This file should look like:
@@ -22,4 +20,4 @@ spURI="https://api.apparyllis.com/v1/"
 
 ## How to put on your watch
 
-Right now this is not an official client for simply plural and does not pair with the app, as such it is not released in the play store. To put it on your device you must follow these instructions.
+Right now this is not an official client for simply plural and does not pair with the app, as such it is not released in the play store. To put it on your device you must follow [these instructions](https://developer.android.com/training/wearables/get-started/debugging).
