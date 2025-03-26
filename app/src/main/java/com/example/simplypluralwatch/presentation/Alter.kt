@@ -2,8 +2,8 @@ package com.example.simplypluralwatch.presentation
 
 import androidx.compose.ui.graphics.Color
 import com.example.simplypluralwatch.BuildConfig
-import com.example.simplypluralwatch.presentation.SPFrontStart
 import java.time.Instant
+import java.util.*
 import kotlinx.serialization.*
 import kotlinx.serialization.json.*
 import okhttp3.MediaType.Companion.toMediaType
@@ -33,7 +33,7 @@ data class SPAlterContainer (val id: String, val content: SPAlter)
 @Serializable
 @JsonIgnoreUnknownKeys
 @ExperimentalSerializationApi
-data class SPAlter (val name: String, val color: String)
+data class SPAlter (val name: String, val color: String, val lastOperationTime : Long?)
 
 @Serializable
 @ExperimentalSerializationApi
@@ -80,7 +80,7 @@ data class SPFrontEnd (
 
 @ExperimentalStdlibApi
 @ExperimentalSerializationApi
-fun spAlterContainerToAlter(spAlterContainer : Array<SPAlterContainer>) : ArrayList<Alter> {
+fun spAlterContainerToAlter(spAlterContainer : List<SPAlterContainer>) : ArrayList<Alter> {
     var allMembers = ArrayList<Alter>()
     for (a in spAlterContainer) {
         var color = Color(
@@ -100,6 +100,7 @@ fun spFrontContainerToAlter(spFrontContainer : Array<SPFrontContainer>) : ArrayL
         for (alter in allAlters) {
             if (a.content.member == alter.id) {
                 alter.startTime = a.content.startTime
+                alter.docID = a.id
                 allFronters.add(alter)
             }
         }
@@ -128,8 +129,10 @@ fun getAllAlters(systemID : String) : ArrayList<Alter> {
 
     if (response.code == 200) {
         var json : String = response.body!!.string()
-        var convertedJson = Json.decodeFromString<Array<SPAlterContainer>>(json)
-        return spAlterContainerToAlter(convertedJson)
+        var convertedJson = Json.decodeFromString<List<SPAlterContainer>>(json)
+        // Sort response by most recent interaction
+        var sortedJson = convertedJson.sortedBy { it.content.lastOperationTime }
+        return spAlterContainerToAlter(sortedJson)
     } else {
         error("Call failed: " + response.code.toString())
     }
