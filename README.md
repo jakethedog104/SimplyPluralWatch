@@ -20,4 +20,4 @@ spURI="https://api.apparyllis.com/v1/"
 
 ## How to put on your watch
 
-Right now this is not an official client for simply plural and does not pair with the app, as such it is not released in the play store. To put it on your device you must follow these instructions.
+Right now this is not an official client for simply plural and does not pair with the app, as such it is not released in the play store. To put it on your device you must follow [these instructions](https://developer.android.com/training/wearables/get-started/debugging).
