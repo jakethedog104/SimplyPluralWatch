@@ -38,6 +38,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.wear.compose.foundation.ExperimentalWearFoundationApi
@@ -70,6 +71,7 @@ import com.google.android.horologist.compose.material.ResponsiveListHeader
 import kotlinx.serialization.ExperimentalSerializationApi
 
 var allAlters = ArrayList<Alter>()
+var allCustomFronts = ArrayList<Alter>()
 var currentFronters = ArrayList<Alter>()
 
 /**
@@ -88,6 +90,7 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         Thread{
             allAlters = getAllAlters(BuildConfig.systemID)
+            allCustomFronts = getAllCustomFronts(BuildConfig.systemID)
             currentFronters = getFronters()
         }.start()
 
@@ -107,11 +110,15 @@ fun WearApp() {
                 composable("menu") {
                     GreetingScreen(
                         getAlterNames(currentFronters),
-                        onShowList = { navController.navigate("list") }
+                        onShowAlterList = { navController.navigate("alterList") },
+                        onShowCustomList = { navController.navigate("customList") }
                     )
                 }
-                composable("list") {
-                    ListScreen()
+                composable("alterList") {
+                    AlterScreen()
+                }
+                composable("customList") {
+                    CustomScreen()
                 }
             }
         }
@@ -119,37 +126,56 @@ fun WearApp() {
 }
 
 @Composable
-fun GreetingScreen(greetingName: String, onShowList: () -> Unit) {
+fun GreetingScreen(greetingName: String, onShowAlterList: () -> Unit, onShowCustomList: () -> Unit) {
     val scrollState = rememberScrollState()
+    var color = MaterialTheme.colors.primary
+    if (!currentFronters.isEmpty()) {
+        color = currentFronters[0].color
+    }
 
-    /* If you have enough items in your list, use [ScalingLazyColumn] which is an optimized
-     * version of LazyColumn for wear devices with some added features. For more information,
-     * see d.android.com/wear/compose.
+    /*
+     * Specifying the types of items that appear at the start and end of the list ensures that the
+     * appropriate padding is used.
      */
-    ScreenScaffold(scrollState = scrollState) {
-        val padding = ScalingLazyColumnDefaults.padding(
+    val columnState = rememberResponsiveColumnState(
+        contentPadding = ScalingLazyColumnDefaults.padding(
             first = ItemType.Text,
             last = ItemType.Chip
-        )()
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .verticalScroll(scrollState)
-                .rotaryScrollable(
-                    behavior(scrollableState = scrollState),
-                    focusRequester = rememberActiveFocusRequester()
-                )
-                .padding(padding),
-            verticalArrangement = Arrangement.Center
+        )
+    )
+
+    ScreenScaffold(scrollState = scrollState) {
+        /*
+         * The Horologist [ScalingLazyColumn] takes care of the horizontal and vertical
+         * padding for the list, so there is no need to specify it, as in the [GreetingScreen]
+         * composable.
+         */
+        ScalingLazyColumn(
+            columnState = columnState
         ) {
-            Greeting(greetingName = greetingName)
-            Chip(label = "Show Alters", onClick = onShowList)
+            item {
+                Greeting(greetingName = greetingName, color = color)
+            }
+            item {
+                Chip(
+                    label = "Show Alters",
+                    onClick = onShowAlterList,
+                    colors = ChipDefaults.primaryChipColors(color)
+                )
+            }
+            item {
+                Chip(
+                    label = "Show Custom Fronts",
+                    onClick = onShowCustomList,
+                    colors = ChipDefaults.primaryChipColors(color)
+                )
+            }
         }
     }
 }
 
 @Composable
-fun ListScreen() {
+fun AlterScreen() {
     var showDialog by remember { mutableStateOf(false) }
 
     /*
@@ -159,7 +185,7 @@ fun ListScreen() {
     val columnState = rememberResponsiveColumnState(
         contentPadding = ScalingLazyColumnDefaults.padding(
             first = ItemType.Text,
-            last = ItemType.SingleButton
+            last = ItemType.Chip
         )
     )
 
@@ -209,12 +235,72 @@ fun ListScreen() {
 }
 
 @Composable
-fun Greeting(greetingName: String) {
+fun CustomScreen() {
+    var showDialog by remember { mutableStateOf(false) }
+
+    /*
+     * Specifying the types of items that appear at the start and end of the list ensures that the
+     * appropriate padding is used.
+     */
+    val columnState = rememberResponsiveColumnState(
+        contentPadding = ScalingLazyColumnDefaults.padding(
+            first = ItemType.Text,
+            last = ItemType.Chip
+        )
+    )
+
+    ScreenScaffold(scrollState = columnState) {
+        /*
+         * The Horologist [ScalingLazyColumn] takes care of the horizontal and vertical
+         * padding for the list, so there is no need to specify it, as in the [GreetingScreen]
+         * composable.
+         */
+        ScalingLazyColumn(
+            columnState = columnState
+        ) {
+            item {
+                ResponsiveListHeader(contentPadding = firstItemPadding()) {
+                    Text(text = "Custom Fronts")
+                }
+            }
+            for (alter in allCustomFronts) {
+                if (currentFronters.contains(alter)) {
+                    item {
+                        Chip(
+                            colors = ChipDefaults.primaryChipColors(alter.color),
+                            label = "Remove " + alter.name + " from front",
+                            onClick = { removeAlterFromFront(alter) }
+                        )
+                    }
+                } else {
+                    item {
+                        Chip(
+                            colors = ChipDefaults.primaryChipColors(alter.color),
+                            label = "Add " + alter.name + " to front",
+                            onClick = { addAlterToFront(alter) }
+                        )
+                    }
+                }
+
+            }
+        }
+    }
+
+    SampleDialog(
+        showDialog = showDialog,
+        onDismiss = { showDialog = false },
+        onCancel = {},
+        onOk = {}
+    )
+}
+
+@Composable
+fun Greeting(greetingName: String, color: Color) {
     ResponsiveListHeader(contentPadding = firstItemPadding()) {
         Text(
             modifier = Modifier.fillMaxWidth(),
             textAlign = TextAlign.Center,
-            color = MaterialTheme.colors.primary,
+            color = color,
             text = stringResource(R.string.hello_world, greetingName)
         )
     }
@@ -266,12 +352,19 @@ fun SampleDialogContent(
 @WearPreviewFontScales
 @Composable
 fun GreetingScreenPreview() {
-    GreetingScreen("Preview Name", onShowList = {})
+    GreetingScreen("Preview Name", onShowAlterList = {}, onShowCustomList = {})
 }
 
 @WearPreviewDevices
 @WearPreviewFontScales
 @Composable
-fun ListScreenPreview() {
-    ListScreen()
+fun AlterScreenPreview() {
+    AlterScreen()
+}
+
+@WearPreviewDevices
+@WearPreviewFontScales
+@Composable
+fun CustomScreenPreview() {
+    CustomScreen()
 }
