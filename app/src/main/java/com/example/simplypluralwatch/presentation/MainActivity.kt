@@ -70,6 +70,7 @@ import com.google.android.horologist.compose.material.ResponsiveListHeader
 import kotlinx.serialization.ExperimentalSerializationApi
 
 var allAlters = ArrayList<Alter>()
+var allCustomFronts = ArrayList<Alter>()
 var currentFronters = ArrayList<Alter>()
 
 /**
@@ -88,6 +89,7 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         Thread{
             allAlters = getAllAlters(BuildConfig.systemID)
+            allCustomFronts = getAllCustomFronts(BuildConfig.systemID)
             currentFronters = getFronters()
         }.start()
 
@@ -107,11 +109,15 @@ fun WearApp() {
                 composable("menu") {
                     GreetingScreen(
                         getAlterNames(currentFronters),
-                        onShowList = { navController.navigate("list") }
+                        onShowAlterList = { navController.navigate("alterList") },
+                        onShowCustomList = { navController.navigate("customList") }
                     )
                 }
-                composable("list") {
-                    ListScreen()
+                composable("alterList") {
+                    AlterScreen()
+                }
+                composable("customList") {
+                    CustomScreen()
                 }
             }
         }
@@ -119,7 +125,7 @@ fun WearApp() {
 }
 
 @Composable
-fun GreetingScreen(greetingName: String, onShowList: () -> Unit) {
+fun GreetingScreen(greetingName: String, onShowAlterList: () -> Unit, onShowCustomList: () -> Unit) {
     val scrollState = rememberScrollState()
 
     /* If you have enough items in your list, use [ScalingLazyColumn] which is an optimized
@@ -143,13 +149,14 @@ fun GreetingScreen(greetingName: String, onShowList: () -> Unit) {
             verticalArrangement = Arrangement.Center
         ) {
             Greeting(greetingName = greetingName)
-            Chip(label = "Show Alters", onClick = onShowList)
+            Chip(label = "Show Alters", onClick = onShowAlterList)
+            Chip(label = "Show Custom Fronts", onClick = onShowCustomList)
         }
     }
 }
 
 @Composable
-fun ListScreen() {
+fun AlterScreen() {
     var showDialog by remember { mutableStateOf(false) }
 
     /*
@@ -178,6 +185,66 @@ fun ListScreen() {
                 }
             }
             for (alter in allAlters) {
+                if (currentFronters.contains(alter)) {
+                    item {
+                        Chip(
+                            colors = ChipDefaults.primaryChipColors(alter.color),
+                            label = "Remove " + alter.name + " from front",
+                            onClick = { removeAlterFromFront(alter) }
+                        )
+                    }
+                } else {
+                    item {
+                        Chip(
+                            colors = ChipDefaults.primaryChipColors(alter.color),
+                            label = "Add " + alter.name + " to front",
+                            onClick = { addAlterToFront(alter) }
+                        )
+                    }
+                }
+
+            }
+        }
+    }
+
+    SampleDialog(
+        showDialog = showDialog,
+        onDismiss = { showDialog = false },
+        onCancel = {},
+        onOk = {}
+    )
+}
+
+@Composable
+fun CustomScreen() {
+    var showDialog by remember { mutableStateOf(false) }
+
+    /*
+     * Specifying the types of items that appear at the start and end of the list ensures that the
+     * appropriate padding is used.
+     */
+    val columnState = rememberResponsiveColumnState(
+        contentPadding = ScalingLazyColumnDefaults.padding(
+            first = ItemType.Text,
+            last = ItemType.SingleButton
+        )
+    )
+
+    ScreenScaffold(scrollState = columnState) {
+        /*
+         * The Horologist [ScalingLazyColumn] takes care of the horizontal and vertical
+         * padding for the list, so there is no need to specify it, as in the [GreetingScreen]
+         * composable.
+         */
+        ScalingLazyColumn(
+            columnState = columnState
+        ) {
+            item {
+                ResponsiveListHeader(contentPadding = firstItemPadding()) {
+                    Text(text = "Custom Fronts")
+                }
+            }
+            for (alter in allCustomFronts) {
                 if (currentFronters.contains(alter)) {
                     item {
                         Chip(
@@ -266,12 +333,19 @@ fun SampleDialogContent(
 @WearPreviewFontScales
 @Composable
 fun GreetingScreenPreview() {
-    GreetingScreen("Preview Name", onShowList = {})
+    GreetingScreen("Preview Name", onShowAlterList = {}, onShowCustomList = {})
 }
 
 @WearPreviewDevices
 @WearPreviewFontScales
 @Composable
-fun ListScreenPreview() {
-    ListScreen()
+fun AlterScreenPreview() {
+    AlterScreen()
+}
+
+@WearPreviewDevices
+@WearPreviewFontScales
+@Composable
+fun CustomScreenPreview() {
+    CustomScreen()
 }

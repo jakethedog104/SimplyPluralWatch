@@ -17,8 +17,8 @@ data class Alter (
     val color: Color,
     var startTime: Long?,
     var docID: String?) {
-    constructor(pNme: String, pID: String, pColor: Color) : this (
-        name = pNme,
+    constructor(pName: String, pID: String, pColor: Color) : this (
+        name = pName,
         id = pID,
         color = pColor,
         startTime = null,
@@ -36,8 +36,9 @@ data class SPAlterContainer (val id: String, val content: SPAlter)
 data class SPAlter (val name: String, val color: String, val lastOperationTime : Long?)
 
 @Serializable
+@JsonIgnoreUnknownKeys
 @ExperimentalSerializationApi
-data class SPFrontContainer (val exists : Boolean, val id: String, val content: SPFrontRead)
+data class SPFrontContainer (val id: String, val content: SPFrontRead)
 @Serializable
 @JsonIgnoreUnknownKeys
 @ExperimentalSerializationApi
@@ -93,8 +94,9 @@ fun spAlterContainerToAlter(spAlterContainer : List<SPAlterContainer>) : ArrayLi
     return allMembers
 }
 
+// Note this function modifies the param allAlters
 @ExperimentalSerializationApi
-fun spFrontContainerToAlter(spFrontContainer : Array<SPFrontContainer>) : ArrayList<Alter> {
+fun spFrontContainerToAlter(spFrontContainer : Array<SPFrontContainer>, allAlters : ArrayList<Alter>) : ArrayList<Alter> {
     var allFronters = ArrayList<Alter>()
     for (a in spFrontContainer) {
         for (alter in allAlters) {
@@ -138,6 +140,27 @@ fun getAllAlters(systemID : String) : ArrayList<Alter> {
     }
 }
 
+@ExperimentalStdlibApi
+@ExperimentalSerializationApi
+fun getAllCustomFronts(systemID : String) : ArrayList<Alter> {
+    val client = OkHttpClient()
+    val request = Request.Builder()
+        .url(BuildConfig.spURI + "customFronts/" + systemID)
+        .addHeader("Authorization", BuildConfig.apiKey)
+        .build()
+    val response = client.newCall(request).execute()
+
+    if (response.code == 200) {
+        var json : String = response.body!!.string()
+        var convertedJson = Json.decodeFromString<List<SPAlterContainer>>(json)
+        // Sort response by most recent interaction
+        var sortedJson = convertedJson.sortedBy { it.content.lastOperationTime }
+        return spAlterContainerToAlter(sortedJson)
+    } else {
+        error("Call failed: " + response.code.toString())
+    }
+}
+
 @ExperimentalSerializationApi
 fun getFronters() : ArrayList<Alter> {
     val client = OkHttpClient()
@@ -150,7 +173,7 @@ fun getFronters() : ArrayList<Alter> {
     if (response.code == 200) {
         var json : String = response.body!!.string()
         var convertedJson = Json.decodeFromString<Array<SPFrontContainer>>(json)
-        return spFrontContainerToAlter(convertedJson)
+        return spFrontContainerToAlter(convertedJson, allAlters)
     } else {
         error("Call failed: " + response.code.toString())
     }
