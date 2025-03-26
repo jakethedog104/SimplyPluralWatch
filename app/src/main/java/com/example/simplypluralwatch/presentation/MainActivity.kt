@@ -38,6 +38,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.wear.compose.foundation.ExperimentalWearFoundationApi
@@ -127,30 +128,48 @@ fun WearApp() {
 @Composable
 fun GreetingScreen(greetingName: String, onShowAlterList: () -> Unit, onShowCustomList: () -> Unit) {
     val scrollState = rememberScrollState()
+    var color = MaterialTheme.colors.primary
+    if (!currentFronters.isEmpty()) {
+        color = currentFronters[0].color
+    }
 
-    /* If you have enough items in your list, use [ScalingLazyColumn] which is an optimized
-     * version of LazyColumn for wear devices with some added features. For more information,
-     * see d.android.com/wear/compose.
+    /*
+     * Specifying the types of items that appear at the start and end of the list ensures that the
+     * appropriate padding is used.
      */
-    ScreenScaffold(scrollState = scrollState) {
-        val padding = ScalingLazyColumnDefaults.padding(
+    val columnState = rememberResponsiveColumnState(
+        contentPadding = ScalingLazyColumnDefaults.padding(
             first = ItemType.Text,
             last = ItemType.Chip
-        )()
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .verticalScroll(scrollState)
-                .rotaryScrollable(
-                    behavior(scrollableState = scrollState),
-                    focusRequester = rememberActiveFocusRequester()
-                )
-                .padding(padding),
-            verticalArrangement = Arrangement.Center
+        )
+    )
+
+    ScreenScaffold(scrollState = scrollState) {
+        /*
+         * The Horologist [ScalingLazyColumn] takes care of the horizontal and vertical
+         * padding for the list, so there is no need to specify it, as in the [GreetingScreen]
+         * composable.
+         */
+        ScalingLazyColumn(
+            columnState = columnState
         ) {
-            Greeting(greetingName = greetingName)
-            Chip(label = "Show Alters", onClick = onShowAlterList)
-            Chip(label = "Show Custom Fronts", onClick = onShowCustomList)
+            item {
+                Greeting(greetingName = greetingName, color = color)
+            }
+            item {
+                Chip(
+                    label = "Show Alters",
+                    onClick = onShowAlterList,
+                    colors = ChipDefaults.primaryChipColors(color)
+                )
+            }
+            item {
+                Chip(
+                    label = "Show Custom Fronts",
+                    onClick = onShowCustomList,
+                    colors = ChipDefaults.primaryChipColors(color)
+                )
+            }
         }
     }
 }
@@ -276,12 +295,12 @@ fun CustomScreen() {
 }
 
 @Composable
-fun Greeting(greetingName: String) {
+fun Greeting(greetingName: String, color: Color) {
     ResponsiveListHeader(contentPadding = firstItemPadding()) {
         Text(
             modifier = Modifier.fillMaxWidth(),
             textAlign = TextAlign.Center,
-            color = MaterialTheme.colors.primary,
+            color = color,
             text = stringResource(R.string.hello_world, greetingName)
         )
     }
