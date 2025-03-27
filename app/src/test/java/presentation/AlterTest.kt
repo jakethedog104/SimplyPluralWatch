@@ -6,7 +6,6 @@ import com.example.simplypluralwatch.presentation.SPAlter
 import com.example.simplypluralwatch.presentation.SPAlterContainer
 import com.example.simplypluralwatch.presentation.SPFrontContainer
 import com.example.simplypluralwatch.presentation.SPFrontRead
-import com.example.simplypluralwatch.presentation.allAlters
 import com.example.simplypluralwatch.presentation.spAlterContainerToAlter
 import com.example.simplypluralwatch.presentation.spFrontContainerToAlter
 import com.example.simplypluralwatch.presentation.getAlterNames
@@ -38,9 +37,10 @@ class AlterTest {
     fun spFrontContainerToAlterTest() {
         runTest {
             var allTestAlters = arrayListOf(Alter("A", "a", Color(0xFF0000FF)), Alter("B", "b", Color(0xFF00FF00)), Alter("C", "c", Color(0xFFFF0000)))
+            var allTestCustom = arrayListOf(Alter("Unknown", "ukn", Color(0xFF000000)))
             var testData = arrayOf(SPFrontContainer("x", SPFrontRead(0, "a")))
             var expectedResult = arrayOf(Alter("A", "a", Color(0xFF0000FF), 0, "x"))
-            var result = spFrontContainerToAlter(testData, allTestAlters)
+            var result = spFrontContainerToAlter(testData, allTestAlters + allTestCustom)
             if (result[0].name != expectedResult[0].name ||
                 result[0].id != expectedResult[0].id ||
                 result[0].color != expectedResult[0].color ||

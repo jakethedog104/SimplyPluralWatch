@@ -120,34 +120,17 @@ fun spAlterContainerToAlter(spAlterContainer : List<SPAlterContainer>) : ArrayLi
 
 // Note this function modifies the param allAlters
 @ExperimentalSerializationApi
-fun spFrontContainerToAlter(spFrontContainer : Array<SPFrontContainer>, allAlters : ArrayList<Alter>) : ArrayList<Alter> {
+fun spFrontContainerToAlter(spFrontContainer : Array<SPFrontContainer>, allAlters : List<Alter>) : ArrayList<Alter> {
     var allFronters = ArrayList<Alter>()
     for (a in spFrontContainer) {
-        var foundAlter = false
-        // Check Alters
         for (alter in allAlters) {
             if (a.content.member == alter.id) {
                 // Found it
-                foundAlter = true
                 alter.startTime = a.content.startTime
                 alter.docID = a.id
                 allFronters.add(alter)
                 // Move to next
                 break
-            }
-        }
-        // Check Custom
-        if (!foundAlter) {
-            for (alter in allCustomFronts) {
-                if (a.content.member == alter.id) {
-                    // Found it
-                    foundAlter = true
-                    alter.startTime = a.content.startTime
-                    alter.docID = a.id
-                    allFronters.add(alter)
-                    // Move to next
-                    break
-                }
             }
         }
     }
@@ -217,7 +200,7 @@ fun getFronters() : ArrayList<Alter> {
     if (response.code == 200) {
         var json : String = response.body!!.string()
         var convertedJson = Json.decodeFromString<Array<SPFrontContainer>>(json)
-        return spFrontContainerToAlter(convertedJson, allAlters)
+        return spFrontContainerToAlter(convertedJson, allAlters + allCustomFronts)
     } else {
         error("Call failed: " + response.code.toString())
     }
