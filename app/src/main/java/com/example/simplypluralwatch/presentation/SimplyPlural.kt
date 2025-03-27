@@ -123,11 +123,31 @@ fun spAlterContainerToAlter(spAlterContainer : List<SPAlterContainer>) : ArrayLi
 fun spFrontContainerToAlter(spFrontContainer : Array<SPFrontContainer>, allAlters : ArrayList<Alter>) : ArrayList<Alter> {
     var allFronters = ArrayList<Alter>()
     for (a in spFrontContainer) {
+        var foundAlter = false
+        // Check Alters
         for (alter in allAlters) {
             if (a.content.member == alter.id) {
+                // Found it
+                foundAlter = true
                 alter.startTime = a.content.startTime
                 alter.docID = a.id
                 allFronters.add(alter)
+                // Move to next
+                break
+            }
+        }
+        // Check Custom
+        if (!foundAlter) {
+            for (alter in allCustomFronts) {
+                if (a.content.member == alter.id) {
+                    // Found it
+                    foundAlter = true
+                    alter.startTime = a.content.startTime
+                    alter.docID = a.id
+                    allFronters.add(alter)
+                    // Move to next
+                    break
+                }
             }
         }
     }
