@@ -183,10 +183,11 @@ fun getFrontHistory(systemID : String) {
     if (response.code == 200) {
         var json : String = response.body!!.string()
         var convertedJson = Json.decodeFromString<List<SPFrontContainer>>(json)
+        convertedJson.sortedByDescending { it.content.endTime }
         saveEndTime(convertedJson, allAlters + allCustomFronts)
         // Sort
-        allAlters = allAlters.sortedBy { it.endTime }
-        allCustomFronts = allCustomFronts.sortedBy { it.endTime }
+        allAlters = allAlters.sortedByDescending { it.endTime }
+        allCustomFronts = allCustomFronts.sortedByDescending { it.endTime }
     } else {
         error("Call failed: " + response.code.toString())
     }
@@ -259,6 +260,7 @@ fun addAlterToFront(alter: Alter) {
 
         var startTime: Long = Instant.now().toEpochMilli()
         alter.startTime = startTime
+        alter.endTime = startTime + 1
         val mediaType = "application/json".toMediaType()
         var postBody =
             Json.encodeToString(SPFrontStart(alter.id, startTime)).toRequestBody(mediaType)
