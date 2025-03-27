@@ -11,6 +11,30 @@ import okhttp3.OkHttpClient
 import okhttp3.Request
 import okhttp3.RequestBody.Companion.toRequestBody
 
+
+@ExperimentalSerializationApi
+fun getUserID() : String {
+    val client = OkHttpClient()
+    val request = Request.Builder()
+        .url(BuildConfig.spURI + "me/")
+        .addHeader("Authorization", BuildConfig.apiKey)
+        .build()
+    val response = client.newCall(request).execute()
+
+    if (response.code == 200) {
+        var json : String = response.body!!.string()
+        var convertedJson = Json.decodeFromString<User>(json)
+        return convertedJson.id
+    } else {
+        error("Call failed: " + response.code.toString())
+    }
+}
+
+@Serializable
+@JsonIgnoreUnknownKeys
+@ExperimentalSerializationApi
+data class User (val id: String)
+
 data class Alter (
     val name: String,
     val id: String,
