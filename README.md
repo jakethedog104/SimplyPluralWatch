@@ -22,12 +22,11 @@ spURI="https://api.apparyllis.com/v1/"
 
 Right now this is not an official client for simply plural and does not pair with the app, as such it is not released in the play store. To put it on your device you must use [ABD](https://developer.android.com/tools/adb).
 
-### Install ADB
-You can skip this step if you have android studios installed.
+### Set up this app
 
-```sh
-brew install android-platform-tools
-```
+Download this repo, and open it in android studio. Run the gradle to install all dependencies. Update `local.properties` to contain the API key you generated in the Simply Plural Settings>Accounts>Tokens (You will only need READ and WRITE access). You also need to include your system ID (aka User ID) which you can find in Simply Plural Settings>Accounts>Account Settings.
+
+Build the APK with your local properties.
 
 ### Prepare your watch
 
@@ -36,7 +35,7 @@ And [connect your watch to your device over wifi](https://developer.android.com/
 
 ### Install the APK
 
-Download the [APK]() and then run the following where `PATH_TO` is wherever you downloaded it.
+Locate the APK and then run the following where `PATH_TO` is the location.
 
 ```sh
 adb -e install <PATH_TO>/app-debug.apk
