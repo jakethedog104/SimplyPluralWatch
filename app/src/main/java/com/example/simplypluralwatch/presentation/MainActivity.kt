@@ -25,13 +25,8 @@ package com.example.simplypluralwatch.presentation
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -42,9 +37,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.wear.compose.foundation.ExperimentalWearFoundationApi
-import androidx.wear.compose.foundation.rememberActiveFocusRequester
-import androidx.wear.compose.foundation.rotary.RotaryScrollableDefaults.behavior
-import androidx.wear.compose.foundation.rotary.rotaryScrollable
 import androidx.wear.compose.material.ChipDefaults
 import androidx.wear.compose.material.MaterialTheme
 import androidx.wear.compose.material.Text
@@ -54,7 +46,6 @@ import androidx.wear.compose.navigation.composable
 import androidx.wear.compose.navigation.rememberSwipeDismissableNavController
 import androidx.wear.compose.ui.tooling.preview.WearPreviewDevices
 import androidx.wear.compose.ui.tooling.preview.WearPreviewFontScales
-import com.example.simplypluralwatch.BuildConfig
 import com.example.simplypluralwatch.R
 import com.example.simplypluralwatch.presentation.theme.WearAppTheme
 import com.google.android.horologist.annotations.ExperimentalHorologistApi
@@ -71,9 +62,9 @@ import com.google.android.horologist.compose.material.ResponsiveListHeader
 import kotlinx.serialization.ExperimentalSerializationApi
 
 var systemID = ""
-var allAlters = ArrayList<Alter>()
-var allCustomFronts = ArrayList<Alter>()
-var currentFronters = ArrayList<Alter>()
+var allAlters = listOf<Alter>()
+var allCustomFronts = listOf<Alter>()
+var currentFronters = listOf<Alter>()
 
 /**
  * Simple "Hello, World" app meant as a starting point for a new project using Compose for Wear OS.
@@ -94,6 +85,9 @@ class MainActivity : ComponentActivity() {
             allAlters = getAllAlters(systemID)
             allCustomFronts = getAllCustomFronts(systemID)
             currentFronters = getFronters()
+            getFrontHistory(systemID)
+
+            // TODO: Refresh?
         }.start()
 
         setContent {
