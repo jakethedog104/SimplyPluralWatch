@@ -59,7 +59,7 @@ data class SPAlterContainer (val id: String, val content: SPAlter)
 @Serializable
 @JsonIgnoreUnknownKeys
 @ExperimentalSerializationApi
-data class SPAlter (val name: String, val color: String, val lastOperationTime : Long?)
+data class SPAlter (val name: String, val color: String, val lastOperationTime : Long?, val archived : Boolean = false)
 
 @Serializable
 @JsonIgnoreUnknownKeys
@@ -110,12 +110,14 @@ data class SPFrontEnd (
 fun spAlterContainerToAlter(spAlterContainer : List<SPAlterContainer>) : ArrayList<Alter> {
     var allMembers = ArrayList<Alter>()
     for (a in spAlterContainer) {
-        var color = Color(
-            a.content.color.substring(1, 3).hexToInt(),
-            a.content.color.substring(3, 5).hexToInt(),
-            a.content.color.substring(5).hexToInt(),
-            255)
-        allMembers.add(Alter(a.content.name, a.id, color))
+        if (!a.content.archived) {
+            var color = Color(
+                a.content.color.substring(1, 3).hexToInt(),
+                a.content.color.substring(3, 5).hexToInt(),
+                a.content.color.substring(5).hexToInt(),
+                255)
+            allMembers.add(Alter(a.content.name, a.id, color))
+        }
     }
     return allMembers
 }
