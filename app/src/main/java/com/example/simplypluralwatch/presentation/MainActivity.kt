@@ -70,6 +70,7 @@ import com.google.android.horologist.compose.material.ListHeaderDefaults.firstIt
 import com.google.android.horologist.compose.material.ResponsiveListHeader
 import kotlinx.serialization.ExperimentalSerializationApi
 
+var systemID = ""
 var allAlters = ArrayList<Alter>()
 var allCustomFronts = ArrayList<Alter>()
 var currentFronters = ArrayList<Alter>()
@@ -89,8 +90,9 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         Thread{
-            allAlters = getAllAlters(BuildConfig.systemID)
-            allCustomFronts = getAllCustomFronts(BuildConfig.systemID)
+            systemID = getUserID()
+            allAlters = getAllAlters(systemID)
+            allCustomFronts = getAllCustomFronts(systemID)
             currentFronters = getFronters()
         }.start()
 

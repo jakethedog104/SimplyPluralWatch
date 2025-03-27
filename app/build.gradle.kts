@@ -6,7 +6,6 @@ val prop = Properties().apply {
     load(FileInputStream(File(rootProject.rootDir, "local.properties")))
 }
 val apiKey: String = prop.getProperty("apiKey")
-val systemID: String = prop.getProperty("systemID")
 val spURI: String = prop.getProperty("spURI")
 
 plugins {
@@ -36,12 +35,10 @@ android {
     buildTypes {
         debug {
             buildConfigField("String", "apiKey", apiKey)
-            buildConfigField("String", "systemID", systemID)
             buildConfigField("String", "spURI", spURI)
         }
         release  {
             buildConfigField("String", "apiKey", apiKey)
-            buildConfigField("String", "systemID", systemID)
             buildConfigField("String", "spURI", spURI)
 
             isMinifyEnabled = true

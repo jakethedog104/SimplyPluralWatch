@@ -14,7 +14,6 @@ This file should look like:
 ```
 sdk.dir=/Users/USER_NAME/Library/Android/sdk
 apiKey="API_KEY"
-systemID="SYS_ID"
 spURI="https://api.apparyllis.com/v1/"
 ```
 
@@ -24,7 +23,7 @@ Right now this is not an official client for simply plural and does not pair wit
 
 ### Set up this app
 
-Download this repo, and open it in android studio. Run the gradle to install all dependencies. Update `local.properties` to contain the API key you generated in the Simply Plural Settings>Accounts>Tokens (You will only need READ and WRITE access). You also need to include your system ID (aka User ID) which you can find in Simply Plural Settings>Accounts>Account Settings.
+Download this repo, and open it in android studio. Run the gradle to install all dependencies. Update `local.properties` to contain the API key you generated in the Simply Plural Settings>Accounts>Tokens (You will only need READ and WRITE access). 
 
 Build the APK with your local properties.
 
