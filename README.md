@@ -20,4 +20,24 @@ spURI="https://api.apparyllis.com/v1/"
 
 ## How to put on your watch
 
-Right now this is not an official client for simply plural and does not pair with the app, as such it is not released in the play store. To put it on your device you must follow [these instructions](https://developer.android.com/training/wearables/get-started/debugging).
+Right now this is not an official client for simply plural and does not pair with the app, as such it is not released in the play store. To put it on your device you must use [ABD](https://developer.android.com/tools/adb).
+
+### Install ADB
+You can skip this step if you have android studios installed.
+
+```sh
+brew install android-platform-tools
+```
+
+### Prepare your watch
+
+Then you will need to [enable development options](https://developer.android.com/training/wearables/get-started/debugging#enable-dev-options) if you have not already.
+And [connect your watch to your device over wifi](https://developer.android.com/training/wearables/get-started/debugging#wifi-debugging).
+
+### Install the APK
+
+Download the [APK]() and then run the following where `PATH_TO` is wherever you downloaded it.
+
+```sh
+adb -e install <PATH_TO>/app-debug.apk
+```
