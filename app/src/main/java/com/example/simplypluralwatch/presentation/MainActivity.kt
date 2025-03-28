@@ -61,6 +61,8 @@ import com.google.android.horologist.compose.material.ListHeaderDefaults.firstIt
 import com.google.android.horologist.compose.material.ResponsiveListHeader
 import kotlinx.serialization.ExperimentalSerializationApi
 import java.time.Instant
+import kotlin.math.pow
+import kotlin.math.sqrt
 
 var systemID = ""
 var allAlters = listOf<Alter>()
@@ -180,6 +182,14 @@ fun GreetingScreen(greetingName: String, onShowAlterList: () -> Unit, onShowCust
     }
 }
 
+fun getBestTextColor(backgroundColor: Color): Color {
+
+    val luminance = sqrt(backgroundColor.red.pow(2) * 0.241 + backgroundColor.green.pow(2) * 0.691 + backgroundColor.blue.pow(2) * 0.068)
+    return if (luminance > 0.65) Color.DarkGray else Color.White
+
+}
+
+
 @Composable
 fun AlterScreen() {
     if (reloadTime[1] != null &&
@@ -220,7 +230,7 @@ fun AlterScreen() {
                 if (currentFronters.contains(alter)) {
                     item {
                         Chip(
-                            colors = ChipDefaults.primaryChipColors(alter.color),
+                            colors = ChipDefaults.primaryChipColors(alter.color, getBestTextColor(alter.color)),
                             label = "Remove " + alter.name + " from front",
                             onClick = { removeAlterFromFront(alter) }
                         )
@@ -228,7 +238,7 @@ fun AlterScreen() {
                 } else {
                     item {
                         Chip(
-                            colors = ChipDefaults.primaryChipColors(alter.color),
+                            colors = ChipDefaults.primaryChipColors(alter.color, getBestTextColor(alter.color)),
                             label = "Add " + alter.name + " to front",
                             onClick = { addAlterToFront(alter) }
                         )
@@ -287,7 +297,7 @@ fun CustomScreen() {
                 if (currentFronters.contains(alter)) {
                     item {
                         Chip(
-                            colors = ChipDefaults.primaryChipColors(alter.color),
+                            colors = ChipDefaults.primaryChipColors(alter.color,getBestTextColor(alter.color)),
                             label = "Remove " + alter.name + " from front",
                             onClick = { removeAlterFromFront(alter) }
                         )
@@ -295,7 +305,7 @@ fun CustomScreen() {
                 } else {
                     item {
                         Chip(
-                            colors = ChipDefaults.primaryChipColors(alter.color),
+                            colors = ChipDefaults.primaryChipColors(alter.color,getBestTextColor(alter.color)),
                             label = "Add " + alter.name + " to front",
                             onClick = { addAlterToFront(alter) }
                         )
