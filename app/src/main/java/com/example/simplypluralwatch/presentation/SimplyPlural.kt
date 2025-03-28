@@ -197,6 +197,15 @@ fun getFrontHistory(systemID : String) {
 
 @ExperimentalStdlibApi
 @ExperimentalSerializationApi
+fun reloadAlters() {
+    // Put the request in a thread since we are calling from Main
+    Thread {
+        allAlters = getAllAlters(systemID)
+    }.start()
+}
+
+@ExperimentalStdlibApi
+@ExperimentalSerializationApi
 fun getAllAlters(systemID : String) : List<Alter> {
     val client = OkHttpClient()
     val request = Request.Builder()
@@ -214,6 +223,15 @@ fun getAllAlters(systemID : String) : List<Alter> {
     } else {
         error("Call failed: " + response.code.toString())
     }
+}
+
+@ExperimentalStdlibApi
+@ExperimentalSerializationApi
+fun reloadCustom() {
+    // Put the request in a thread since we are calling from Main
+    Thread {
+        allCustomFronts = getAllCustomFronts(systemID)
+    }.start()
 }
 
 @ExperimentalStdlibApi
@@ -238,12 +256,21 @@ fun getAllCustomFronts(systemID : String) : List<Alter> {
 }
 
 @ExperimentalSerializationApi
+fun reloadFronters() {
+    // Put the request in a thread since we are calling from Main
+    Thread {
+        currentFronters = getFronters()
+    }.start()
+}
+
+@ExperimentalSerializationApi
 fun getFronters() : List<Alter> {
     val client = OkHttpClient()
     val request = Request.Builder()
         .url(BuildConfig.spURI + "fronters/")
         .addHeader("Authorization", BuildConfig.apiKey)
         .build()
+
     val response = client.newCall(request).execute()
 
     if (response.code == 200) {

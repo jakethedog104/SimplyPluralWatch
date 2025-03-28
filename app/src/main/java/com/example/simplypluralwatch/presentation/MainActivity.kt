@@ -65,6 +65,7 @@ var systemID = ""
 var allAlters = listOf<Alter>()
 var allCustomFronts = listOf<Alter>()
 var currentFronters = listOf<Alter>()
+var reload = arrayOf<Boolean>(false, false, false)
 
 /**
  * Simple "Hello, World" app meant as a starting point for a new project using Compose for Wear OS.
@@ -86,8 +87,6 @@ class MainActivity : ComponentActivity() {
             allCustomFronts = getAllCustomFronts(systemID)
             currentFronters = getFronters()
             getFrontHistory(systemID)
-
-            // TODO: Refresh?
         }.start()
 
         setContent {
@@ -123,6 +122,9 @@ fun WearApp() {
 
 @Composable
 fun GreetingScreen(greetingName: String, onShowAlterList: () -> Unit, onShowCustomList: () -> Unit) {
+    if (reload[0]) { reloadFronters() }
+    reload[0] = true
+
     val scrollState = rememberScrollState()
     var color = MaterialTheme.colors.primary
     if (!currentFronters.isEmpty()) {
@@ -172,6 +174,9 @@ fun GreetingScreen(greetingName: String, onShowAlterList: () -> Unit, onShowCust
 
 @Composable
 fun AlterScreen() {
+    if (reload[1]) { reloadAlters() }
+    reload[1] = true
+
     var showDialog by remember { mutableStateOf(false) }
 
     /*
@@ -232,6 +237,9 @@ fun AlterScreen() {
 
 @Composable
 fun CustomScreen() {
+    if (reload[2]) { reloadCustom() }
+    reload[2] = true
+
     var showDialog by remember { mutableStateOf(false) }
 
     /*
