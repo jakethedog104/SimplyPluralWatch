@@ -60,12 +60,13 @@ import com.google.android.horologist.compose.material.Chip
 import com.google.android.horologist.compose.material.ListHeaderDefaults.firstItemPadding
 import com.google.android.horologist.compose.material.ResponsiveListHeader
 import kotlinx.serialization.ExperimentalSerializationApi
+import java.time.Instant
 
 var systemID = ""
 var allAlters = listOf<Alter>()
 var allCustomFronts = listOf<Alter>()
 var currentFronters = listOf<Alter>()
-var reload = arrayOf<Boolean>(false, false, false)
+var reloadTime = arrayOf<Instant?>(null, null, null)
 
 /**
  * Simple "Hello, World" app meant as a starting point for a new project using Compose for Wear OS.
@@ -84,8 +85,11 @@ class MainActivity : ComponentActivity() {
         Thread{
             systemID = getUserID()
             allAlters = getAllAlters(systemID)
+            reloadTime[1] = Instant.now()
             allCustomFronts = getAllCustomFronts(systemID)
+            reloadTime[2] = Instant.now()
             currentFronters = getFronters()
+            reloadTime[0] = Instant.now()
             getFrontHistory(systemID)
         }.start()
 
@@ -122,8 +126,12 @@ fun WearApp() {
 
 @Composable
 fun GreetingScreen(greetingName: String, onShowAlterList: () -> Unit, onShowCustomList: () -> Unit) {
-    if (reload[0]) { reloadFronters() }
-    reload[0] = true
+    if (reloadTime[0] != null &&
+        // and its been more than 30 seconds
+        reloadTime[0]!!.toEpochMilli() + 30000 <= Instant.now().toEpochMilli()) {
+        reloadFronters()
+        reloadTime[0] = Instant.now()
+    }
 
     val scrollState = rememberScrollState()
     var color = MaterialTheme.colors.primary
@@ -174,8 +182,12 @@ fun GreetingScreen(greetingName: String, onShowAlterList: () -> Unit, onShowCust
 
 @Composable
 fun AlterScreen() {
-    if (reload[1]) { reloadAlters() }
-    reload[1] = true
+    if (reloadTime[1] != null &&
+        // its been more than an hour
+        reloadTime[1]!!.toEpochMilli() + 3600000 <= Instant.now().toEpochMilli()) {
+        reloadAlters()
+        reloadTime[1] = Instant.now()
+    }
 
     var showDialog by remember { mutableStateOf(false) }
 
@@ -237,8 +249,12 @@ fun AlterScreen() {
 
 @Composable
 fun CustomScreen() {
-    if (reload[2]) { reloadCustom() }
-    reload[2] = true
+    if (reloadTime[2] != null &&
+        // its been more than an hour
+        reloadTime[2]!!.toEpochMilli() + 3600000 <= Instant.now().toEpochMilli()) {
+        reloadCustom()
+        reloadTime[2] = Instant.now()
+    }
 
     var showDialog by remember { mutableStateOf(false) }
 

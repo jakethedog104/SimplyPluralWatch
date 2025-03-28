@@ -177,7 +177,9 @@ fun getFrontHistory(systemID : String) {
     var endTime: Long = Instant.now().toEpochMilli()
 
     val request = Request.Builder()
-        .url(BuildConfig.spURI + "frontHistory/" + systemID + "?startTime=" + startTime + "&endTime=" + endTime)
+        .url(BuildConfig.spURI + "frontHistory/" + systemID +
+                "?startTime=" + startTime +
+                "&endTime=" + endTime)
         .addHeader("Authorization", BuildConfig.apiKey)
         .build()
     val response = client.newCall(request).execute()
