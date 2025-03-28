@@ -272,7 +272,6 @@ fun getFronters() : List<Alter> {
         .url(BuildConfig.spURI + "fronters/")
         .addHeader("Authorization", BuildConfig.apiKey)
         .build()
-
     val response = client.newCall(request).execute()
 
     if (response.code == 200) {
