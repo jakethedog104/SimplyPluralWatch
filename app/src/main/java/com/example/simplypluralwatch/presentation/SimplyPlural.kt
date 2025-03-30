@@ -179,7 +179,10 @@ fun getFrontHistory(systemID : String) {
     val request = Request.Builder()
         .url(BuildConfig.spURI + "frontHistory/" + systemID +
                 "?startTime=" + startTime +
-                "&endTime=" + endTime)
+                "&endTime=" + endTime +
+                // Ask for the list sorted by
+                // who started fronting first
+                "&sortBy=startTime&sortOrder=-1")
         .addHeader("Authorization", BuildConfig.apiKey)
         .build()
     val response = client.newCall(request).execute()
@@ -187,11 +190,8 @@ fun getFrontHistory(systemID : String) {
     if (response.code == 200) {
         var json : String = response.body!!.string()
         var convertedJson = Json.decodeFromString<List<SPFrontContainer>>(json)
-        convertedJson.sortedByDescending { it.content.endTime }
         saveEndTime(convertedJson, allAlters + allCustomFronts)
-        // Sort
-        allAlters = allAlters.sortedByDescending { it.endTime }
-        allCustomFronts = allCustomFronts.sortedByDescending { it.endTime }
+        sortFrontLists()
     } else {
         error("Call failed: " + response.code.toString())
     }
@@ -219,9 +219,7 @@ fun getAllAlters(systemID : String) : List<Alter> {
     if (response.code == 200) {
         var json : String = response.body!!.string()
         var convertedJson = Json.decodeFromString<List<SPAlterContainer>>(json)
-        // Sort response by most recent interaction
-        var sortedJson = convertedJson.sortedBy { it.content.lastOperationTime }
-        return spAlterContainerToAlter(sortedJson)
+        return spAlterContainerToAlter(convertedJson)
     } else {
         error("Call failed: " + response.code.toString())
     }
@@ -249,9 +247,7 @@ fun getAllCustomFronts(systemID : String) : List<Alter> {
     if (response.code == 200) {
         var json : String = response.body!!.string()
         var convertedJson = Json.decodeFromString<List<SPAlterContainer>>(json)
-        // Sort response by most recent interaction
-        var sortedJson = convertedJson.sortedBy { it.content.lastOperationTime }
-        return spAlterContainerToAlter(sortedJson)
+        return spAlterContainerToAlter(convertedJson)
     } else {
         error("Call failed: " + response.code.toString())
     }
@@ -289,8 +285,6 @@ fun addAlterToFront(alter: Alter) {
         val client = OkHttpClient()
 
         var startTime: Long = Instant.now().toEpochMilli()
-        alter.startTime = startTime
-        alter.endTime = startTime + 1
         val mediaType = "application/json".toMediaType()
         var postBody =
             Json.encodeToString(SPFrontStart(alter.id, startTime)).toRequestBody(mediaType)
@@ -309,7 +303,10 @@ fun addAlterToFront(alter: Alter) {
             if (response.code == 200) {
                 var json: String = response.body!!.string()
                 alter.docID = json.replace("\"", "")
+                alter.startTime = startTime
+                alter.endTime = startTime + 1
                 currentFronters = currentFronters.plus(alter)
+                sortFrontLists()
             }
         }.start()
     }
@@ -338,9 +335,20 @@ fun removeAlterFromFront(alter: Alter) {
 
             if (response.code == 200) {
                 alter.startTime = null
+                alter.endTime = endTime
                 alter.docID = null
                 currentFronters = currentFronters.minus(alter)
+                sortFrontLists()
             }
         }.start()
     }
+}
+
+fun sortFrontLists() {
+    allAlters = allAlters.sortedByDescending { it.endTime }
+    allCustomFronts = allCustomFronts.sortedByDescending { it.endTime }
+
+    // If your currently fronting, bop to top
+    allAlters = allAlters.sortedByDescending { it.startTime }
+    allCustomFronts = allCustomFronts.sortedByDescending { it.startTime }
 }
