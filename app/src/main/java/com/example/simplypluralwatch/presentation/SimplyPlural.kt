@@ -179,7 +179,10 @@ fun getFrontHistory(systemID : String) {
     val request = Request.Builder()
         .url(BuildConfig.spURI + "frontHistory/" + systemID +
                 "?startTime=" + startTime +
-                "&endTime=" + endTime)
+                "&endTime=" + endTime +
+                // Ask for the list sorted by
+                // who started fronting first
+                "&sortBy=startTime&sortOrder=-1")
         .addHeader("Authorization", BuildConfig.apiKey)
         .build()
     val response = client.newCall(request).execute()
@@ -188,7 +191,7 @@ fun getFrontHistory(systemID : String) {
         var json : String = response.body!!.string()
         var convertedJson = Json.decodeFromString<List<SPFrontContainer>>(json)
         saveEndTime(convertedJson, allAlters + allCustomFronts)
-        sortFrontList()
+        sortFrontLists()
     } else {
         error("Call failed: " + response.code.toString())
     }
@@ -343,4 +346,8 @@ fun removeAlterFromFront(alter: Alter) {
 fun sortFrontLists() {
     allAlters = allAlters.sortedByDescending { it.endTime }
     allCustomFronts = allCustomFronts.sortedByDescending { it.endTime }
+
+    // If your currently fronting, bop to top
+    allAlters = allAlters.sortedByDescending { it.startTime }
+    allCustomFronts = allCustomFronts.sortedByDescending { it.startTime }
 }
