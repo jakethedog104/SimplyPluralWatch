@@ -334,6 +334,7 @@ fun removeAlterFromFront(alter: Alter) {
             val response = client.newCall(request).execute()
 
             if (response.code == 200) {
+                alter.startTime = null
                 alter.endTime = endTime
                 alter.docID = null
                 currentFronters = currentFronters.minus(alter)
