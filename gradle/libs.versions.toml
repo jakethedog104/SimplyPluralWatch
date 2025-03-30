@@ -6,6 +6,7 @@ androidx-wear-compose = "1.4.1"
 compose-compiler = "1.5.15"
 compose-ui-tooling = "1.4.1"
 horologist = "0.7.5-alpha"
+horologist-tiles = "0.6.9"
 kotlin = "2.1.0"
 kotlinx-serialization-json = "1.8.0"
 ktlint = "0.50.0"
@@ -13,6 +14,9 @@ okhttp-bom = "4.12.0"
 org-jetbrains-kotlin = "2.1.0"
 robolectric = "4.14.1"
 roborazzi = "1.43.0"
+tiles = "1.4.1"
+tiles-tooling = "1.4.1"
+tiles-tooling-preview = "1.4.1"
 ui-test-junit4 = "1.7.8"
 ui-test-manifest = "1.7.8"
 
@@ -22,6 +26,9 @@ androidx-compose-bom = { group = "androidx.compose", name = "compose-bom", versi
 androidx-compose-ui-tooling = { module = "androidx.wear.compose:compose-ui-tooling", version.ref = "compose-ui-tooling" }
 androidx-material-icons-core = { module = "androidx.compose.material:material-icons-core" }
 androidx-splashscreen =  "androidx.core:core-splashscreen:1.0.1"
+androidx-tiles = { module = "androidx.wear.tiles:tiles", version.ref = "tiles" }
+androidx-tiles-tooling-preview = { module = "androidx.wear.tiles:tiles-tooling-preview", version.ref = "tiles-tooling-preview" }
+androidx-tiles-tooling = { module = "androidx.wear.tiles:tiles-tooling", version.ref = "tiles-tooling" }
 androidx-ui-test-junit4 = { module = "androidx.compose.ui:ui-test-junit4", version.ref = "ui-test-junit4" }
 androidx-ui-test-manifest = { module = "androidx.compose.ui:ui-test-manifest", version.ref = "ui-test-manifest" }
 compose-compiler = { module = "androidx.compose.compiler:compiler", version.ref = "compose-compiler" }
@@ -32,6 +39,7 @@ desugar-jdk-libs = "com.android.tools:desugar_jdk_libs:2.1.5"
 horologist-compose-layout = { module = "com.google.android.horologist:horologist-compose-layout", version.ref = "horologist" }
 horologist-compose-material = { module = "com.google.android.horologist:horologist-compose-material", version.ref = "horologist" }
 horologist-roboscreenshots = { module = "com.google.android.horologist:horologist-roboscreenshots", version.ref = "horologist" }
+horologist-tiles = { module = "com.google.android.horologist:horologist-tiles", version.ref = "horologist-tiles" }
 junit = "junit:junit:4.13.2"
 kotlin-gradle-plugin = { module = "org.jetbrains.kotlin:kotlin-gradle-plugin", version.ref = "org-jetbrains-kotlin" }
 kotlinx-serialization-json = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version.ref = "kotlinx-serialization-json" }

@@ -89,6 +89,12 @@ dependencies {
     // Serialization & Deserialization libs
     implementation(libs.kotlinx.serialization.json)
 
+    // Tiles
+    implementation(libs.androidx.tiles)
+    implementation(libs.horologist.tiles)
+    debugImplementation(libs.androidx.tiles.tooling)
+    debugImplementation(libs.androidx.tiles.tooling.preview)
+
     // General compose dependencies
     implementation(composeBom)
     implementation(libs.androidx.activity.compose)

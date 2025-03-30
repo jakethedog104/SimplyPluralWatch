@@ -5,4 +5,11 @@
     values-round/strings.xml for round devices.
     -->
     <string name="hello_world">Hello, %1$s!</string>
+
+    <!--
+    This string is used for the tile
+    -->
+    <string name="tile_label">Hello tile</string>
+    <string name="tile_description">My first tile!</string>
+    <string name="tile_body">Time to create a tile!</string>
 </resources>
