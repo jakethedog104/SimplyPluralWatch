@@ -28,7 +28,7 @@
             android:name="com.example.simplypluralwatch.presentation.TileService"
             android:description="@string/tile_description"
             android:exported="true"
-            android:icon="@drawable/ic_waving_hand_24"
+            android:icon="@drawable/splash_icon"
             android:label="@string/tile_label"
             android:permission="com.google.android.wearable.permission.BIND_TILE_PROVIDER">
 

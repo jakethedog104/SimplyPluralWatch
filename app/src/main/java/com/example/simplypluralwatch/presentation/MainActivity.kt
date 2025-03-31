@@ -1,18 +1,3 @@
-/*
- * Copyright 2022 The Android Open Source Project
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     https://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
 @file:OptIn(
     ExperimentalHorologistApi::class,
     ExperimentalWearFoundationApi::class,
@@ -22,6 +7,7 @@
 
 package com.example.simplypluralwatch.presentation
 
+import android.content.Context
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -61,8 +47,6 @@ import com.google.android.horologist.compose.material.ListHeaderDefaults.firstIt
 import com.google.android.horologist.compose.material.ResponsiveListHeader
 import kotlinx.serialization.ExperimentalSerializationApi
 import java.time.Instant
-import kotlin.math.pow
-import kotlin.math.sqrt
 
 var systemID = ""
 var allAlters = listOf<Alter>()
@@ -84,25 +68,30 @@ var reloadTime = arrayOf<Instant?>(null, null, null)
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
         Thread{
             systemID = getUserID()
             allAlters = getAllAlters(systemID)
             reloadTime[1] = Instant.now()
             allCustomFronts = getAllCustomFronts(systemID)
             reloadTime[2] = Instant.now()
-            currentFronters = getFronters()
+            currentFronters = getFronters(this.applicationContext, allAlters + allCustomFronts)
             reloadTime[0] = Instant.now()
-            getFrontHistory(systemID)
+            // TODO: When does this need to be reloaded?
+            getFrontHistory(systemID, allAlters + allCustomFronts)
+            // Sort
+            allAlters = sortFrontList(allAlters)
+            allCustomFronts = sortFrontList(allCustomFronts)
         }.start()
 
         setContent {
-            WearApp()
+            WearApp(this.applicationContext)
         }
     }
 }
 
 @Composable
-fun WearApp() {
+fun WearApp(context : Context) {
     val navController = rememberSwipeDismissableNavController()
 
     WearAppTheme {
@@ -110,16 +99,17 @@ fun WearApp() {
             SwipeDismissableNavHost(navController = navController, startDestination = "menu") {
                 composable("menu") {
                     GreetingScreen(
+                        context = context,
                         getAlterNames(currentFronters),
                         onShowAlterList = { navController.navigate("alterList") },
                         onShowCustomList = { navController.navigate("customList") }
                     )
                 }
                 composable("alterList") {
-                    AlterScreen()
+                    AlterScreen(context)
                 }
                 composable("customList") {
-                    CustomScreen()
+                    CustomScreen(context)
                 }
             }
         }
@@ -127,12 +117,18 @@ fun WearApp() {
 }
 
 @Composable
-fun GreetingScreen(greetingName: String, onShowAlterList: () -> Unit, onShowCustomList: () -> Unit) {
+fun GreetingScreen(context : Context, greetingName: String, onShowAlterList: () -> Unit, onShowCustomList: () -> Unit) {
     if (reloadTime[0] != null &&
         // and its been more than 30 seconds
         reloadTime[0]!!.toEpochMilli() + 30000 <= Instant.now().toEpochMilli()) {
-        reloadFronters()
-        reloadTime[0] = Instant.now()
+        // Reload fronters
+        // Put the request in a thread since we are calling from Main
+        Thread {
+            currentFronters = getFronters(context, allAlters + allCustomFronts)
+            allAlters = sortFrontList(allAlters)
+            allCustomFronts = sortFrontList(allCustomFronts)
+            reloadTime[0] = Instant.now()
+        }.start()
     }
 
     val scrollState = rememberScrollState()
@@ -182,21 +178,17 @@ fun GreetingScreen(greetingName: String, onShowAlterList: () -> Unit, onShowCust
     }
 }
 
-fun getBestTextColor(backgroundColor: Color): Color {
-
-    val luminance = sqrt(backgroundColor.red.pow(2) * 0.241 + backgroundColor.green.pow(2) * 0.691 + backgroundColor.blue.pow(2) * 0.068)
-    return if (luminance > 0.65) Color.DarkGray else Color.White
-
-}
-
-
 @Composable
-fun AlterScreen() {
+fun AlterScreen(context : Context) {
     if (reloadTime[1] != null &&
         // its been more than an hour
         reloadTime[1]!!.toEpochMilli() + 3600000 <= Instant.now().toEpochMilli()) {
-        reloadAlters()
-        reloadTime[1] = Instant.now()
+        // Reload alters
+        // Put the request in a thread since we are calling from Main
+        Thread {
+            allAlters = sortFrontList(getAllAlters(systemID))
+            reloadTime[1] = Instant.now()
+        }.start()
     }
 
     var showDialog by remember { mutableStateOf(false) }
@@ -232,7 +224,7 @@ fun AlterScreen() {
                         Chip(
                             colors = ChipDefaults.primaryChipColors(alter.color, getBestTextColor(alter.color)),
                             label = "Remove " + alter.name + " from front",
-                            onClick = { removeAlterFromFront(alter) }
+                            onClick = { removeAlterFromFront(context, alter); allAlters = sortFrontList(allAlters) }
                         )
                     }
                 } else {
@@ -240,7 +232,7 @@ fun AlterScreen() {
                         Chip(
                             colors = ChipDefaults.primaryChipColors(alter.color, getBestTextColor(alter.color)),
                             label = "Add " + alter.name + " to front",
-                            onClick = { addAlterToFront(alter) }
+                            onClick = { addAlterToFront(context, alter); allAlters = sortFrontList(allAlters) }
                         )
                     }
                 }
@@ -258,12 +250,16 @@ fun AlterScreen() {
 }
 
 @Composable
-fun CustomScreen() {
+fun CustomScreen(context : Context) {
     if (reloadTime[2] != null &&
         // its been more than an hour
         reloadTime[2]!!.toEpochMilli() + 3600000 <= Instant.now().toEpochMilli()) {
-        reloadCustom()
-        reloadTime[2] = Instant.now()
+        // Reload custom
+        // Put the request in a thread since we are calling from Main
+        Thread {
+            allCustomFronts = sortFrontList(getAllCustomFronts(systemID))
+            reloadTime[2] = Instant.now()
+        }.start()
     }
 
     var showDialog by remember { mutableStateOf(false) }
@@ -299,7 +295,7 @@ fun CustomScreen() {
                         Chip(
                             colors = ChipDefaults.primaryChipColors(alter.color,getBestTextColor(alter.color)),
                             label = "Remove " + alter.name + " from front",
-                            onClick = { removeAlterFromFront(alter) }
+                            onClick = { removeAlterFromFront(context, alter); allCustomFronts = sortFrontList(allCustomFronts) }
                         )
                     }
                 } else {
@@ -307,7 +303,7 @@ fun CustomScreen() {
                         Chip(
                             colors = ChipDefaults.primaryChipColors(alter.color,getBestTextColor(alter.color)),
                             label = "Add " + alter.name + " to front",
-                            onClick = { addAlterToFront(alter) }
+                            onClick = { addAlterToFront(context, alter); allCustomFronts = sortFrontList(allCustomFronts) }
                         )
                     }
                 }
@@ -331,7 +327,7 @@ fun Greeting(greetingName: String, color: Color) {
             modifier = Modifier.fillMaxWidth(),
             textAlign = TextAlign.Center,
             color = color,
-            text = stringResource(R.string.hello_world, greetingName)
+            text = stringResource(R.string.hello, greetingName)
         )
     }
 }
@@ -382,19 +378,19 @@ fun SampleDialogContent(
 @WearPreviewFontScales
 @Composable
 fun GreetingScreenPreview() {
-    GreetingScreen("Preview Name", onShowAlterList = {}, onShowCustomList = {})
+//    GreetingScreen("Preview Name", onShowAlterList = {}, onShowCustomList = {})
 }
 
 @WearPreviewDevices
 @WearPreviewFontScales
 @Composable
 fun AlterScreenPreview() {
-    AlterScreen()
+//    AlterScreen()
 }
 
 @WearPreviewDevices
 @WearPreviewFontScales
 @Composable
 fun CustomScreenPreview() {
-    CustomScreen()
+//    CustomScreen()
 }

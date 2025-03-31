@@ -1,16 +1,14 @@
 package com.example.simplypluralwatch.presentation
 
-import androidx.compose.ui.graphics.Color
+import android.content.Context
 import com.example.simplypluralwatch.BuildConfig
-import java.time.Instant
-import java.util.*
 import kotlinx.serialization.*
 import kotlinx.serialization.json.*
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import okhttp3.RequestBody.Companion.toRequestBody
-
+import java.time.Instant
 
 @ExperimentalSerializationApi
 fun getUserID() : String {
@@ -30,147 +28,9 @@ fun getUserID() : String {
     }
 }
 
-@Serializable
-@JsonIgnoreUnknownKeys
-@ExperimentalSerializationApi
-data class User (val id: String)
-
-data class Alter (
-    val name: String,
-    val id: String,
-    val color: Color,
-    var startTime: Long?,
-    var endTime: Long?,
-    var docID: String?) {
-    constructor(pName: String, pID: String, pColor: Color) : this (
-        name = pName,
-        id = pID,
-        color = pColor,
-        startTime = null,
-        endTime = null,
-        docID = null
-    )
-}
-
-@Serializable
-@JsonIgnoreUnknownKeys
-@ExperimentalSerializationApi
-data class SPAlterContainer (val id: String, val content: SPAlter)
-@Serializable
-@JsonIgnoreUnknownKeys
-@ExperimentalSerializationApi
-data class SPAlter (val name: String, val color: String, val lastOperationTime : Long?, val archived : Boolean = false)
-
-@Serializable
-@JsonIgnoreUnknownKeys
-@ExperimentalSerializationApi
-data class SPFrontContainer (val id: String, val content: SPFrontRead)
-@Serializable
-@JsonIgnoreUnknownKeys
-@ExperimentalSerializationApi
-data class SPFrontRead (val startTime : Long, val endTime : Long?, val member : String)
-
-@Serializable
-@JsonIgnoreUnknownKeys
-@ExperimentalSerializationApi
-data class SPFrontStart (
-    val custom : Boolean,
-    val live : Boolean,
-    val startTime : Long,
-    val member : String
-) {
-    constructor(pMember: String, pStartTime: Long) : this (
-        custom = false,
-        live = true,
-        startTime = pStartTime,
-        member = pMember
-    )
-}
-@Serializable
-@JsonIgnoreUnknownKeys
-@ExperimentalSerializationApi
-data class SPFrontEnd (
-    val custom : Boolean,
-    val live : Boolean,
-    val startTime : Long,
-    val endTime : Long,
-    val member : String
-) {
-    constructor(pMember: String, pStartTime: Long, pEndTime: Long) : this (
-        custom = false,
-        live = false,
-        startTime = pStartTime,
-        endTime = pEndTime,
-        member = pMember
-    )
-}
-
 @ExperimentalStdlibApi
 @ExperimentalSerializationApi
-fun spAlterContainerToAlter(spAlterContainer : List<SPAlterContainer>) : ArrayList<Alter> {
-    var allMembers = ArrayList<Alter>()
-    for (a in spAlterContainer) {
-        if (!a.content.archived) {
-            var color = Color(
-                a.content.color.substring(1, 3).hexToInt(),
-                a.content.color.substring(3, 5).hexToInt(),
-                a.content.color.substring(5).hexToInt(),
-                255)
-            allMembers.add(Alter(a.content.name, a.id, color))
-        }
-    }
-    return allMembers
-}
-
-// Note this function modifies the param allFronters
-@ExperimentalSerializationApi
-fun spFrontContainerToAlter(spFrontContainer : Array<SPFrontContainer>, allFronters : List<Alter>) : List<Alter> {
-    var currentFronters = listOf<Alter>()
-    for (a in spFrontContainer) {
-        for (alter in allFronters) {
-            if (a.content.member == alter.id) {
-                // Found it
-                alter.startTime = a.content.startTime
-                alter.docID = a.id
-                currentFronters = currentFronters.plus(alter)
-                // Move to next
-                break
-            }
-        }
-    }
-    return currentFronters
-}
-
-// Note this function modifies the param allFronters
-@ExperimentalSerializationApi
-fun saveEndTime(spFrontContainer : List<SPFrontContainer>, allFronters : List<Alter>) {
-    for (alter in allFronters) {
-        for (a in spFrontContainer) {
-            if (a.content.member == alter.id) {
-                // Found it
-                alter.endTime = a.content.endTime
-                // Move to next
-                break
-            }
-        }
-        // If not found leave as null
-    }
-}
-
-
-fun getAlterNames(al : List<Alter>) : String {
-    var names = ""
-    for (a in al) {
-        if (names != "") { names += ", "}
-        names += a.name
-    }
-    return names
-}
-
-
-@ExperimentalStdlibApi
-@ExperimentalSerializationApi
-fun getFrontHistory(systemID : String) {
+fun getFrontHistory(systemID : String,  allFronts : List<Alter>) {
     val client = OkHttpClient()
 
     var startTime: Long = Instant.now().toEpochMilli() - 604800000 // one week ago
@@ -190,20 +50,10 @@ fun getFrontHistory(systemID : String) {
     if (response.code == 200) {
         var json : String = response.body!!.string()
         var convertedJson = Json.decodeFromString<List<SPFrontContainer>>(json)
-        saveEndTime(convertedJson, allAlters + allCustomFronts)
-        sortFrontLists()
+        saveEndTime(convertedJson, allFronts)
     } else {
         error("Call failed: " + response.code.toString())
     }
-}
-
-@ExperimentalStdlibApi
-@ExperimentalSerializationApi
-fun reloadAlters() {
-    // Put the request in a thread since we are calling from Main
-    Thread {
-        allAlters = getAllAlters(systemID)
-    }.start()
 }
 
 @ExperimentalStdlibApi
@@ -219,19 +69,10 @@ fun getAllAlters(systemID : String) : List<Alter> {
     if (response.code == 200) {
         var json : String = response.body!!.string()
         var convertedJson = Json.decodeFromString<List<SPAlterContainer>>(json)
-        return spAlterContainerToAlter(convertedJson)
+        return sortFrontList(spAlterContainerToAlter(convertedJson))
     } else {
         error("Call failed: " + response.code.toString())
     }
-}
-
-@ExperimentalStdlibApi
-@ExperimentalSerializationApi
-fun reloadCustom() {
-    // Put the request in a thread since we are calling from Main
-    Thread {
-        allCustomFronts = getAllCustomFronts(systemID)
-    }.start()
 }
 
 @ExperimentalStdlibApi
@@ -247,22 +88,14 @@ fun getAllCustomFronts(systemID : String) : List<Alter> {
     if (response.code == 200) {
         var json : String = response.body!!.string()
         var convertedJson = Json.decodeFromString<List<SPAlterContainer>>(json)
-        return spAlterContainerToAlter(convertedJson)
+        return sortFrontList(spAlterContainerToAlter(convertedJson))
     } else {
         error("Call failed: " + response.code.toString())
     }
 }
 
 @ExperimentalSerializationApi
-fun reloadFronters() {
-    // Put the request in a thread since we are calling from Main
-    Thread {
-        currentFronters = getFronters()
-    }.start()
-}
-
-@ExperimentalSerializationApi
-fun getFronters() : List<Alter> {
+fun getFronters(context : Context, allFronts : List<Alter>) : List<Alter> {
     val client = OkHttpClient()
     val request = Request.Builder()
         .url(BuildConfig.spURI + "fronters/")
@@ -273,14 +106,16 @@ fun getFronters() : List<Alter> {
     if (response.code == 200) {
         var json : String = response.body!!.string()
         var convertedJson = Json.decodeFromString<Array<SPFrontContainer>>(json)
-        return spFrontContainerToAlter(convertedJson, allAlters + allCustomFronts)
+        var currentFronters = spFrontContainerToAlter(convertedJson, allFronts)
+        writeString(context, "currentFronters", getAlterNames(currentFronters))
+        return currentFronters
     } else {
         error("Call failed: " + response.code.toString())
     }
 }
 
 @ExperimentalSerializationApi
-fun addAlterToFront(alter: Alter) {
+fun addAlterToFront(context : Context, alter: Alter) {
     if (!currentFronters.contains(alter)) {
         val client = OkHttpClient()
 
@@ -306,14 +141,14 @@ fun addAlterToFront(alter: Alter) {
                 alter.startTime = startTime
                 alter.endTime = startTime + 1
                 currentFronters = currentFronters.plus(alter)
-                sortFrontLists()
+                writeString(context, "currentFronters", getAlterNames(currentFronters))
             }
         }.start()
     }
 }
 
 @ExperimentalSerializationApi
-fun removeAlterFromFront(alter: Alter) {
+fun removeAlterFromFront(context : Context, alter: Alter) {
     if (currentFronters.contains(alter)) {
         val client = OkHttpClient()
 
@@ -338,17 +173,8 @@ fun removeAlterFromFront(alter: Alter) {
                 alter.endTime = endTime
                 alter.docID = null
                 currentFronters = currentFronters.minus(alter)
-                sortFrontLists()
+                writeString(context, "currentFronters", getAlterNames(currentFronters))
             }
         }.start()
     }
-}
-
-fun sortFrontLists() {
-    allAlters = allAlters.sortedByDescending { it.endTime }
-    allCustomFronts = allCustomFronts.sortedByDescending { it.endTime }
-
-    // If your currently fronting, bop to top
-    allAlters = allAlters.sortedByDescending { it.startTime }
-    allCustomFronts = allCustomFronts.sortedByDescending { it.startTime }
 }
