@@ -3,6 +3,7 @@ package com.example.simplypluralwatch.presentation
 import android.content.Context
 import androidx.compose.ui.graphics.Color
 import androidx.core.content.edit
+import com.google.android.horologist.annotations.ExperimentalHorologistApi
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlin.math.pow
 import kotlin.math.sqrt
@@ -79,10 +80,12 @@ fun sortFrontList(list : List<Alter>) : List<Alter> {
     return list.sortedByDescending { it.endTime }.sortedByDescending { it.startTime }
 }
 
+@OptIn(ExperimentalHorologistApi::class)
 fun writeString(context: Context, key: String?, property: String?) {
     context.getSharedPreferences("spw_preference_file_key", Context.MODE_PRIVATE).edit() {
         putString(key, property)
     }
+//    TileService.getUpdater(context).requestUpdate(RememberWearTileProviderService::class.java)
 }
 
 fun readString(context: Context, key: String?): String? {

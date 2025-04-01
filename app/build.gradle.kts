@@ -90,6 +90,7 @@ dependencies {
     implementation(libs.kotlinx.serialization.json)
 
     // Tiles
+    implementation(libs.androidx.activity.ktx)
     implementation(libs.androidx.tiles)
     implementation(libs.horologist.tiles)
     debugImplementation(libs.androidx.tiles.tooling)
