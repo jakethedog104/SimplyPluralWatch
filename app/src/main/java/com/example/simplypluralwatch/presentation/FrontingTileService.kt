@@ -7,11 +7,11 @@ import androidx.wear.protolayout.LayoutElementBuilders
 import androidx.wear.protolayout.LayoutElementBuilders.Text
 import androidx.wear.protolayout.ModifiersBuilders.Clickable
 import androidx.wear.protolayout.ResourceBuilders
-import androidx.wear.protolayout.TimelineBuilders
+import androidx.wear.protolayout.TimelineBuilders.Timeline
 import androidx.wear.protolayout.material.Chip
 import androidx.wear.protolayout.material.layouts.PrimaryLayout
 import androidx.wear.tiles.RequestBuilders
-import androidx.wear.tiles.TileBuilders
+import androidx.wear.tiles.TileBuilders.Tile
 import com.example.simplypluralwatch.R
 import com.google.android.horologist.annotations.ExperimentalHorologistApi
 import com.google.android.horologist.tiles.SuspendingTileService
@@ -38,25 +38,11 @@ class FrontingTileService : SuspendingTileService() {
             .build()
     }
 
-    override suspend fun tileRequest(
-        requestParams: RequestBuilders.TileRequest
-    ): TileBuilders.Tile {
-        val singleTileTimeline = TimelineBuilders.Timeline.Builder()
-            .addTimelineEntry(
-                TimelineBuilders.TimelineEntry.Builder()
-                    .setLayout(
-                        LayoutElementBuilders.Layout.Builder()
-                            .setRoot(tileLayout(currentFrontersString!!, requestParams.deviceConfiguration))
-                            .build()
-                    )
-                    .build()
-            )
-            .build()
-
-        return TileBuilders.Tile.Builder()
-            .setResourcesVersion(RESOURCES_VERSION)
-            .setTileTimeline(singleTileTimeline)
-            .build()
+    override suspend fun tileRequest(requestParams: RequestBuilders.TileRequest): Tile {
+        val layoutElement = tileLayout(currentFrontersString!!, requestParams.deviceConfiguration)
+        return Tile.Builder().setResourcesVersion(RESOURCES_VERSION).setTileTimeline(
+            Timeline.fromLayoutElement(layoutElement)
+        ).build()
     }
 
     private fun tileLayout(currentFrontersString : String, deviceParams : DeviceParameters) : LayoutElementBuilders.LayoutElement {
