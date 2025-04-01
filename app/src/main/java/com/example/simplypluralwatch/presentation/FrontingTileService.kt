@@ -1,14 +1,14 @@
 package com.example.simplypluralwatch.presentation
 
 import android.content.ComponentName
+import android.content.Context
 import androidx.wear.protolayout.ActionBuilders
 import androidx.wear.protolayout.DeviceParametersBuilders.DeviceParameters
-import androidx.wear.protolayout.LayoutElementBuilders
 import androidx.wear.protolayout.LayoutElementBuilders.Text
 import androidx.wear.protolayout.ModifiersBuilders.Clickable
 import androidx.wear.protolayout.ResourceBuilders
 import androidx.wear.protolayout.TimelineBuilders.Timeline
-import androidx.wear.protolayout.material.Chip
+import androidx.wear.protolayout.material.CompactChip
 import androidx.wear.protolayout.material.layouts.PrimaryLayout
 import androidx.wear.tiles.RequestBuilders
 import androidx.wear.tiles.TileBuilders.Tile
@@ -39,29 +39,33 @@ class FrontingTileService : SuspendingTileService() {
     }
 
     override suspend fun tileRequest(requestParams: RequestBuilders.TileRequest): Tile {
-        val layoutElement = tileLayout(currentFrontersString!!, requestParams.deviceConfiguration)
+        val text = getString(R.string.hello, currentFrontersString)
+        val layoutElement = tileLayout(text, this.applicationContext, requestParams.deviceConfiguration)
         return Tile.Builder().setResourcesVersion(RESOURCES_VERSION).setTileTimeline(
             Timeline.fromLayoutElement(layoutElement)
         ).build()
     }
 
-    private fun tileLayout(currentFrontersString : String, deviceParams : DeviceParameters) : LayoutElementBuilders.LayoutElement {
-        val text = getString(R.string.hello, currentFrontersString)
-        return PrimaryLayout.Builder(deviceParams)
+    internal fun tileLayout(
+        currentFrontersString: String,
+        context: Context,
+        deviceParameters: DeviceParameters
+    ) = PrimaryLayout.Builder(deviceParameters)
             .setResponsiveContentInsetEnabled(true)
             .setContent(
-                Text.Builder().setText(text).build()
+                Text.Builder().setText(currentFrontersString).build()
             )
             .setPrimaryChipContent(
-                Chip.Builder(
-                    this.applicationContext,
+                CompactChip.Builder(
+                    context,
+                    "Change",
                     Clickable.Builder().setOnClick(
                         ActionBuilders.launchAction(
                             ComponentName("com.example.simplypluralwatch.presentation", "MainActivity")
                         )
                     ).build(),
-                    deviceParams
-                ).build()
+                    deviceParameters
+                )
+                .build()
             ).build()
-    }
 }
