@@ -46,7 +46,7 @@ class FrontingTileService : SuspendingTileService() {
                 TimelineBuilders.TimelineEntry.Builder()
                     .setLayout(
                         LayoutElementBuilders.Layout.Builder()
-                            .setRoot(tileLayout(currentFrontersString!!))
+                            .setRoot(tileLayout(currentFrontersString!!, requestParams.deviceConfiguration))
                             .build()
                     )
                     .build()
@@ -59,9 +59,8 @@ class FrontingTileService : SuspendingTileService() {
             .build()
     }
 
-    private fun tileLayout(currentFrontersString : String) : LayoutElementBuilders.LayoutElement {
+    private fun tileLayout(currentFrontersString : String, deviceParams : DeviceParameters) : LayoutElementBuilders.LayoutElement {
         val text = getString(R.string.hello, currentFrontersString)
-        val deviceParams = DeviceParameters.Builder().build()
         return PrimaryLayout.Builder(deviceParams)
             .setResponsiveContentInsetEnabled(true)
             .setContent(

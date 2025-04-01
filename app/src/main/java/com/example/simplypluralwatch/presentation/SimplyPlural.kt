@@ -115,7 +115,7 @@ fun getFronters(context : Context, allFronts : List<Alter>) : List<Alter> {
 }
 
 @ExperimentalSerializationApi
-fun addAlterToFront(context : Context, alter: Alter) {
+fun addAlterToFront(context : Context, alter: Alter, currentFronters: List<Alter>) : List<Alter> {
     if (!currentFronters.contains(alter)) {
         val client = OkHttpClient()
 
@@ -131,24 +131,23 @@ fun addAlterToFront(context : Context, alter: Alter) {
             .post(postBody)
             .build()
 
-        // Put the request in a thread since we are calling from Main
-        Thread {
-            val response = client.newCall(request).execute()
+        val response = client.newCall(request).execute()
 
-            if (response.code == 200) {
-                var json: String = response.body!!.string()
-                alter.docID = json.replace("\"", "")
-                alter.startTime = startTime
-                alter.endTime = startTime + 1
-                currentFronters = currentFronters.plus(alter)
-                writeString(context, "currentFronters", getAlterNames(currentFronters))
-            }
-        }.start()
+        if (response.code == 200) {
+            var json: String = response.body!!.string()
+            alter.docID = json.replace("\"", "")
+            alter.startTime = startTime
+            alter.endTime = startTime + 1
+            var newCurrentFronters = currentFronters.plus(alter)
+            writeString(context, "currentFronters", getAlterNames(newCurrentFronters))
+            return newCurrentFronters
+        }
     }
+    return currentFronters
 }
 
 @ExperimentalSerializationApi
-fun removeAlterFromFront(context : Context, alter: Alter) {
+fun removeAlterFromFront(context : Context, alter: Alter, currentFronters : List<Alter>) : List<Alter> {
     if (currentFronters.contains(alter)) {
         val client = OkHttpClient()
 
@@ -164,17 +163,16 @@ fun removeAlterFromFront(context : Context, alter: Alter) {
             .patch(postBody)
             .build()
 
-        // Put the request in a thread since we are calling from Main
-        Thread {
-            val response = client.newCall(request).execute()
+        val response = client.newCall(request).execute()
 
-            if (response.code == 200) {
-                alter.startTime = null
-                alter.endTime = endTime
-                alter.docID = null
-                currentFronters = currentFronters.minus(alter)
-                writeString(context, "currentFronters", getAlterNames(currentFronters))
-            }
-        }.start()
+        if (response.code == 200) {
+            alter.startTime = null
+            alter.endTime = endTime
+            alter.docID = null
+            var newCurrentFronters = currentFronters.minus(alter)
+            writeString(context, "currentFronters", getAlterNames(newCurrentFronters))
+            return newCurrentFronters
+        }
     }
+    return currentFronters
 }

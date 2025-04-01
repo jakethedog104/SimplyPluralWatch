@@ -213,7 +213,13 @@ fun AlterScreen(context : Context) {
                         Chip(
                             colors = ChipDefaults.primaryChipColors(alter.color, getBestTextColor(alter.color)),
                             label = "Remove " + alter.name + " from front",
-                            onClick = { removeAlterFromFront(context, alter); allAlters = sortFrontList(allAlters) }
+                            onClick = {
+                                // Put the request in a thread since we are calling from Main
+                                Thread {
+                                    currentFronters = removeAlterFromFront(context, alter, currentFronters)
+                                    allAlters = sortFrontList(allAlters)
+                                }.start()
+                            }
                         )
                     }
                 } else {
@@ -221,7 +227,13 @@ fun AlterScreen(context : Context) {
                         Chip(
                             colors = ChipDefaults.primaryChipColors(alter.color, getBestTextColor(alter.color)),
                             label = "Add " + alter.name + " to front",
-                            onClick = { addAlterToFront(context, alter); allAlters = sortFrontList(allAlters) }
+                            onClick = {
+                                // Put the request in a thread since we are calling from Main
+                                Thread {
+                                    currentFronters = addAlterToFront(context, alter, currentFronters)
+                                    allAlters = sortFrontList(allAlters)
+                                }.start()
+                            }
                         )
                     }
                 }
@@ -284,7 +296,13 @@ fun CustomScreen(context : Context) {
                         Chip(
                             colors = ChipDefaults.primaryChipColors(alter.color,getBestTextColor(alter.color)),
                             label = "Remove " + alter.name + " from front",
-                            onClick = { removeAlterFromFront(context, alter); allCustomFronts = sortFrontList(allCustomFronts) }
+                            onClick = {
+                                // Put the request in a thread since we are calling from Main
+                                Thread {
+                                    currentFronters = removeAlterFromFront(context, alter, currentFronters)
+                                    allAlters = sortFrontList(allAlters)
+                                }.start()
+                            }
                         )
                     }
                 } else {
@@ -292,7 +310,13 @@ fun CustomScreen(context : Context) {
                         Chip(
                             colors = ChipDefaults.primaryChipColors(alter.color,getBestTextColor(alter.color)),
                             label = "Add " + alter.name + " to front",
-                            onClick = { addAlterToFront(context, alter); allCustomFronts = sortFrontList(allCustomFronts) }
+                            onClick = {
+                                // Put the request in a thread since we are calling from Main
+                                Thread {
+                                    currentFronters = addAlterToFront(context, alter, currentFronters)
+                                    allAlters = sortFrontList(allAlters)
+                                }.start()
+                            }
                         )
                     }
                 }
