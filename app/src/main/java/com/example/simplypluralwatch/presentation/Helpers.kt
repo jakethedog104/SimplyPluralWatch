@@ -85,7 +85,6 @@ fun writeString(context: Context, key: String?, property: String?) {
     context.getSharedPreferences("spw_preference_file_key", Context.MODE_PRIVATE).edit() {
         putString(key, property)
     }
-//    TileService.getUpdater(context).requestUpdate(RememberWearTileProviderService::class.java)
 }
 
 fun readString(context: Context, key: String?): String? {

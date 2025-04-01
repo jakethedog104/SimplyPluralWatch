@@ -48,23 +48,12 @@ import com.google.android.horologist.compose.material.ResponsiveListHeader
 import kotlinx.serialization.ExperimentalSerializationApi
 import java.time.Instant
 
-var systemID = ""
-var allAlters = listOf<Alter>()
-var allCustomFronts = listOf<Alter>()
-var currentFronters = listOf<Alter>()
-var reloadTime = arrayOf<Instant?>(null, null, null)
+private var systemID = ""
+private var allAlters = listOf<Alter>()
+private var allCustomFronts = listOf<Alter>()
+private var currentFronters = listOf<Alter>()
+private var reloadTime = arrayOf<Instant?>(null, null, null)
 
-/**
- * Simple "Hello, World" app meant as a starting point for a new project using Compose for Wear OS.
- *
- * Displays a centered [Text] composable and a list built with Horologist
- * (https://github.com/google/horologist).
- *
- * Use the Wear version of Compose Navigation. You can carry
- * over your knowledge from mobile and it supports the swipe-to-dismiss gesture (Wear OS's
- * back action). For more information, go here:
- * https://developer.android.com/reference/kotlin/androidx/wear/compose/navigation/package-summary
- */
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

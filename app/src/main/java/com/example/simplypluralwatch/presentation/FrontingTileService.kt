@@ -1,9 +1,15 @@
 package com.example.simplypluralwatch.presentation
 
-import androidx.wear.protolayout.DimensionBuilders
+import android.content.ComponentName
+import androidx.wear.protolayout.ActionBuilders
+import androidx.wear.protolayout.DeviceParametersBuilders.DeviceParameters
 import androidx.wear.protolayout.LayoutElementBuilders
+import androidx.wear.protolayout.LayoutElementBuilders.Text
+import androidx.wear.protolayout.ModifiersBuilders.Clickable
 import androidx.wear.protolayout.ResourceBuilders
 import androidx.wear.protolayout.TimelineBuilders
+import androidx.wear.protolayout.material.Chip
+import androidx.wear.protolayout.material.layouts.PrimaryLayout
 import androidx.wear.tiles.RequestBuilders
 import androidx.wear.tiles.TileBuilders
 import com.example.simplypluralwatch.R
@@ -13,7 +19,7 @@ import com.google.android.horologist.tiles.SuspendingTileService
 private const val RESOURCES_VERSION = "0"
 
 @ExperimentalHorologistApi
-class TileService : SuspendingTileService() {
+class FrontingTileService : SuspendingTileService() {
     var currentFrontersString : String? = ""
 
     override fun onCreate() {
@@ -21,6 +27,7 @@ class TileService : SuspendingTileService() {
         // Load data
         currentFrontersString = readString(this.applicationContext, "currentFronters")
         if (currentFrontersString.isNullOrEmpty()) { currentFrontersString = "" }
+        getUpdater(this.applicationContext).requestUpdate(FrontingTileService::class.java)
     }
 
     override suspend fun resourcesRequest(
@@ -54,15 +61,22 @@ class TileService : SuspendingTileService() {
 
     private fun tileLayout(currentFrontersString : String) : LayoutElementBuilders.LayoutElement {
         val text = getString(R.string.hello, currentFrontersString)
-        return LayoutElementBuilders.Box.Builder()
-            .setVerticalAlignment(LayoutElementBuilders.VERTICAL_ALIGN_CENTER)
-            .setWidth(DimensionBuilders.expand())
-            .setHeight(DimensionBuilders.expand())
-            .addContent(
-                LayoutElementBuilders.Text.Builder()
-                    .setText(text)
-                    .build()
+        val deviceParams = DeviceParameters.Builder().build()
+        return PrimaryLayout.Builder(deviceParams)
+            .setResponsiveContentInsetEnabled(true)
+            .setContent(
+                Text.Builder().setText(text).build()
             )
-            .build()
+            .setPrimaryChipContent(
+                Chip.Builder(
+                    this.applicationContext,
+                    Clickable.Builder().setOnClick(
+                        ActionBuilders.launchAction(
+                            ComponentName("com.example.simplypluralwatch.presentation", "MainActivity")
+                        )
+                    ).build(),
+                    deviceParams
+                ).build()
+            ).build()
     }
 }
