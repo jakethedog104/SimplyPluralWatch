@@ -1,6 +1,5 @@
 package com.example.simplypluralwatch.presentation
 
-import android.content.ComponentName
 import android.content.Context
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
@@ -19,6 +18,7 @@ import androidx.wear.tiles.TileBuilders.Tile
 import com.example.simplypluralwatch.R
 import com.google.android.horologist.annotations.ExperimentalHorologistApi
 import com.google.android.horologist.tiles.SuspendingTileService
+
 
 private const val RESOURCES_VERSION = "0"
 
@@ -68,11 +68,15 @@ class FrontingTileService : SuspendingTileService() {
                 CompactChip.Builder(
                     context,
                     "Change",
-                    Clickable.Builder().setId("loadAction")
+                    Clickable.Builder()
+                        .setId("loadAction")
                         .setOnClick(
-                            ActionBuilders.launchAction(
-                                ComponentName("com.example.simplypluralwatch.presentation", "MainActivity")
-                            )
+                            ActionBuilders.LaunchAction.Builder().setAndroidActivity(
+                                ActionBuilders.AndroidActivity.Builder()
+                                    .setClassName(MainActivity::class.simpleName!!)
+                                    .setPackageName(this.packageName)
+                                    .build()
+                            ).build()
                         ).build(),
                     deviceParameters
                 ).setChipColors(ChipColors.primaryChipColors(Colors(
