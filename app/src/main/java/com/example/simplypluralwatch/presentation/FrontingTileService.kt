@@ -68,11 +68,12 @@ class FrontingTileService : SuspendingTileService() {
                 CompactChip.Builder(
                     context,
                     "Change",
-                    Clickable.Builder().setOnClick(
-                        ActionBuilders.launchAction(
-                            ComponentName("com.example.simplypluralwatch.presentation", "MainActivity")
-                        )
-                    ).build(),
+                    Clickable.Builder().setId("loadAction")
+                        .setOnClick(
+                            ActionBuilders.launchAction(
+                                ComponentName("com.example.simplypluralwatch.presentation", "MainActivity")
+                            )
+                        ).build(),
                     deviceParameters
                 ).setChipColors(ChipColors.primaryChipColors(Colors(
                     currentFrontersColor!!.toArgb(),
