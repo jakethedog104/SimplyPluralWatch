@@ -2,12 +2,16 @@ package com.example.simplypluralwatch.presentation
 
 import android.content.ComponentName
 import android.content.Context
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.toArgb
 import androidx.wear.protolayout.ActionBuilders
 import androidx.wear.protolayout.DeviceParametersBuilders.DeviceParameters
 import androidx.wear.protolayout.LayoutElementBuilders.Text
 import androidx.wear.protolayout.ModifiersBuilders.Clickable
 import androidx.wear.protolayout.ResourceBuilders
 import androidx.wear.protolayout.TimelineBuilders.Timeline
+import androidx.wear.protolayout.material.ChipColors
+import androidx.wear.protolayout.material.Colors
 import androidx.wear.protolayout.material.CompactChip
 import androidx.wear.protolayout.material.layouts.PrimaryLayout
 import androidx.wear.tiles.RequestBuilders
@@ -21,11 +25,14 @@ private const val RESOURCES_VERSION = "0"
 @ExperimentalHorologistApi
 class FrontingTileService : SuspendingTileService() {
     var currentFrontersString : String? = ""
+    var currentFrontersColor : Color? = null
 
     override fun onCreate() {
         super.onCreate()
         // Load data
         currentFrontersString = readString(this.applicationContext, "currentFronters")
+        var currentFrontersColorString = readString(this.applicationContext, "currentFrontersColor")
+        currentFrontersColor = if (currentFrontersColorString.isNullOrEmpty()) Color(0xFFFFFFFF) else Color(currentFrontersColorString.toInt())
         if (currentFrontersString.isNullOrEmpty()) { currentFrontersString = "" }
         getUpdater(this.applicationContext).requestUpdate(FrontingTileService::class.java)
     }
@@ -53,7 +60,9 @@ class FrontingTileService : SuspendingTileService() {
     ) = PrimaryLayout.Builder(deviceParameters)
             .setResponsiveContentInsetEnabled(true)
             .setContent(
-                Text.Builder().setText(currentFrontersString).build()
+                Text.Builder()
+                    .setText(currentFrontersString)
+                    .build()
             )
             .setPrimaryChipContent(
                 CompactChip.Builder(
@@ -65,7 +74,11 @@ class FrontingTileService : SuspendingTileService() {
                         )
                     ).build(),
                     deviceParameters
-                )
-                .build()
+                ).setChipColors(ChipColors.primaryChipColors(Colors(
+                    currentFrontersColor!!.toArgb(),
+                    getBestTextColor(currentFrontersColor!!).toArgb(),
+                    0x00FFFFFF,
+                    0x00FFFFFF
+                ))).build()
             ).build()
 }

@@ -1,6 +1,7 @@
 package com.example.simplypluralwatch.presentation
 
 import android.content.Context
+import androidx.compose.ui.graphics.toArgb
 import com.example.simplypluralwatch.BuildConfig
 import kotlinx.serialization.*
 import kotlinx.serialization.json.*
@@ -108,6 +109,7 @@ fun getFronters(context : Context, allFronts : List<Alter>) : List<Alter> {
         var convertedJson = Json.decodeFromString<Array<SPFrontContainer>>(json)
         var currentFronters = spFrontContainerToAlter(convertedJson, allFronts)
         writeString(context, "currentFronters", getAlterNames(currentFronters))
+        if(currentFronters.isNotEmpty()) { writeString(context, "currentFrontersColor", currentFronters[0].color.toArgb().toString()) }
         return currentFronters
     } else {
         error("Call failed: " + response.code.toString())
@@ -140,6 +142,7 @@ fun addAlterToFront(context : Context, alter: Alter, currentFronters: List<Alter
             alter.endTime = startTime + 1
             var newCurrentFronters = currentFronters.plus(alter)
             writeString(context, "currentFronters", getAlterNames(newCurrentFronters))
+            if(currentFronters.isNotEmpty()) { writeString(context, "currentFrontersColor", currentFronters[0].color.toArgb().toString()) }
             return newCurrentFronters
         }
     }
@@ -171,6 +174,7 @@ fun removeAlterFromFront(context : Context, alter: Alter, currentFronters : List
             alter.docID = null
             var newCurrentFronters = currentFronters.minus(alter)
             writeString(context, "currentFronters", getAlterNames(newCurrentFronters))
+            if(currentFronters.isNotEmpty()) { writeString(context, "currentFrontersColor", currentFronters[0].color.toArgb().toString()) }
             return newCurrentFronters
         }
     }
